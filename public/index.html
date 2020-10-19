@@ -11,30 +11,62 @@
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 	<style>
+		body {
+			background-image: url("interlaced.png");
+			background-repeat: repeat;
+			font-family: Impact;
+		}
 		.navbar {
-			background-color: #e3f2fd;
+			background-color: #00a08e;
 		}
 		.btn-lg {
 			width: 25%;
 			font-size: 10px;
 			text-align: center;
+			color: white;
+		}
+		.reminder-item {
+			background-color: #efc358;
+			border: 1px solid grey;
+			border-radius: 10px;
+			height: 70px;
+			margin: 5px;
+		}
+		.reminder-title {
+			font-size: 24px;
+		}
+		.reminder-count {
+			font-size: 24px;
+			text-align: center;
 		}
 	</style>
 </head>
 <body>
+
+	<nav class="navbar sticky-top navbar-dark bg-dark">
+	  <a class="navbar-brand" href="#" style="width: 100%; text-align: center">How Many Days Since You</a>
+	</nav>
 	<div class="container">
 	<nav class="navbar fixed-bottom navbar-expand-lg">
 		<form class="form-inline" style="width: 100%">
-	   		 <button class="btn btn-lg" type="button"><i class="fa fa-hourglass fa-3x" aria-hidden="true"></i><br>Reminder</button>
-	   		 <button class="btn btn-lg" type="button"><i class="fa fa-ban fa-3x" aria-hidden="true"></i><br>Quit Streak</button>
-	   		 <button class="btn btn-lg" type="button"><i class="fa fa-bar-chart fa-3x" aria-hidden="true"></i><br>Stat</button>
-	   		 <button class="btn btn-lg" type="button"><i class="fa fa-cog fa-3x" aria-hidden="true"></i><br>Setting</button>
-	   		 
+	   		 <button class="btn btn-lg" type="button"><i class="fa fa-hourglass fa-3x" aria-hidden="true"></i><br><br>Reminder</button>
+	   		 <button class="btn btn-lg" type="button"><i class="fa fa-ban fa-3x" aria-hidden="true"></i><br><br>Quit Streak</button>
+	   		 <button class="btn btn-lg" type="button"><i class="fa fa-bar-chart fa-3x" aria-hidden="true"></i><br><br>Stat</button>
+	   		 <button class="btn btn-lg" type="button"><i class="fa fa-cog fa-3x" aria-hidden="true"></i><br><br>Setting</button>
 	  	</form>
 	</nav>
+
+	<div class="row">
+		<div class="col-lg-12 reminder-item">
+			<div class="row pt-3">
+				<div class="col-9 reminder-title">Wash bedsheet</div>
+				<div class="col-3 reminder-count">7</div>
+			</div>
+		</div>
 	</div>
-	<a class="navbar-brand" href="#"><img width="50" height="auto" src=".\hmd.png"></a>
+	</div>
 	<!--
+	<a class="navbar-brand" href="#"><img width="50" height="auto" src=".\hmd.png"></a>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
 	  <a class="navbar-brand" href="#"><img width="50" height="auto" src="C:\Users\510th\Desktop\HMD\hmd ver1.png"></a>
 	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
