@@ -6,13 +6,13 @@
 	<title>How Many Days Since</title>
 	<!-- FONT AWESOME -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<!-- BOOTSTRAP -->
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 	<!-- JQUERY -->
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<!-- BOOTSTRAP -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 
-	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="./style.css">
 	<script src="./script.js"></script>
 </head>
@@ -42,6 +42,9 @@
 		</div>
 	</div>
 	<!-- ADD MENU -->
+	<div class="alert alert-warning mt-2" role="alert">
+		  Please fill out all required fields.
+	</div>
 	<div class="add-menu">
 		<form>
 			<div class="form-group">
@@ -51,13 +54,13 @@
 			</div>
 			<div class="form-group">
 				<label for="reminder-name">Maximum day count</label>
-				<input type="number" class="form-control" id="reminder-name">
+				<input type="number" class="form-control" id="reminder-day">
 				<small id="name-help" class="form-text text-muted">The reminder will still count past maximum day, this is just for gauge meter</small>
 			</div>
 			<div class="form-group">
 				<label for="reminder-name">Alert</label>
 				<small id="name-help" class="form-text text-muted">The default alert is at max day count & every day after</small>
-				<input type="number" class="form-control" id="reminder-name" placeholder="optional">
+				<input type="number" class="form-control" id="reminder-alert" placeholder="optional">
 				<small id="name-help" class="form-text text-muted">The day count you would like to get alert on</small>
 			</div>
 			<button type="submit" class="btn btn-add btn-outline-primary btn-block">Add</button>
