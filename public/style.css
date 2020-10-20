@@ -53,4 +53,7 @@ body {
 	position: fixed;
 	right: 10px;
 	bottom: 100px;
-} 
+}
+.add-menu {
+	display: none;
+}
