@@ -8,7 +8,12 @@ $(document).ready(function() {
 		$(".reminder-list").show();
 		$(".add-menu").hide();
 		$(".alert-warning").hide();
-	})
+		// Empty fields
+		$("#reminder-name").val("");
+		$("#reminder-day").val("");
+		$("#reminder-alert").val("");
+	});
+
 	$(".btn-add").click(function() {
 		var name = $("#reminder-name").val();
 		var day = $("#reminder-day").val();
@@ -22,6 +27,5 @@ $(document).ready(function() {
 		else {
 			$(".alert-warning").show();
 		}
-
-	})
+	});
 });
