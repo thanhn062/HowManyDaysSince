@@ -10,6 +10,7 @@
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type="text/css" href="./style.css">
 	<style>
 		body {
 			background-image: url("interlaced.png");
@@ -29,7 +30,7 @@
 			background-color: #efc358;
 			border: 1px solid grey;
 			border-radius: 10px;
-			height: 70px;
+			height: auto;
 			margin: 5px;
 		}
 		.reminder-title {
@@ -39,14 +40,45 @@
 			font-size: 24px;
 			text-align: center;
 		}
+		/* Circle Button Tags*/
+		.btn-circle.btn-sm { 
+            width: 30px; 
+            height: 30px; 
+            padding: 6px 0px; 
+            border-radius: 15px; 
+            font-size: 8px; 
+            text-align: center; 
+        } 
+        .btn-circle.btn-md { 
+            width: 50px; 
+            height: 50px; 
+            padding: 7px 10px; 
+            border-radius: 25px; 
+            font-size: 10px; 
+            text-align: center; 
+        } 
+        .btn-circle.btn-xl { 
+            width: 70px; 
+            height: 70px; 
+            padding: 10px 16px; 
+            border-radius: 35px; 
+            font-size: 12px; 
+            text-align: center; 
+
+            position: fixed;
+		    right: 10px;
+		    bottom: 100px;
+        } 
 	</style>
 </head>
 <body>
-
+	<!-- TOP BAR -->
 	<nav class="navbar sticky-top navbar-dark bg-dark">
 	  <a class="navbar-brand" href="#" style="width: 100%; text-align: center">How Many Days Since You</a>
 	</nav>
+	<!-- CONTAINER START -->
 	<div class="container">
+	<!-- FIXED BOTTOM NAV -->
 	<nav class="navbar fixed-bottom navbar-expand-lg">
 		<form class="form-inline" style="width: 100%">
 	   		 <button class="btn btn-lg" type="button"><i class="fa fa-hourglass fa-3x" aria-hidden="true"></i><br><br>Reminder</button>
@@ -56,15 +88,18 @@
 	  	</form>
 	</nav>
 
-	<div class="row">
+	<div class="row reminder-list">
 		<div class="col-lg-12 reminder-item">
-			<div class="row pt-3">
-				<div class="col-9 reminder-title">Wash bedsheet</div>
+			<div class="row pt-3 pb-3">
+				<div class="col-9 reminder-title">Wash the bedsheet</div>
 				<div class="col-3 reminder-count">7</div>
 			</div>
 		</div>
 	</div>
+	<button type="button" class="btn btn-dark btn-circle btn-xl"><i class="fa fa-plus fa-3x" aria-hidden="true"></i></button> 
 	</div>
+	<!-- CONTAINER END -->
+
 	<!--
 	<a class="navbar-brand" href="#"><img width="50" height="auto" src=".\hmd.png"></a>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
