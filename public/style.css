@@ -57,3 +57,7 @@ body {
 .add-menu, .alert-warning {
 	display: none;
 }
+
+#reminder-list {
+	margin-bottom: 100px;
+}
