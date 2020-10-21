@@ -18,7 +18,15 @@ $(document).ready(function() {
 				<div class="col-lg-12 reminder-item">
 					<div class="row pt-3 pb-3">
 						<div class="col-9 reminder-title">${reminder[i].name}</div>
-						<div class="col-3 reminder-count">${reminder[i].day}</div>
+						<div class="col-3 reminder-count">
+							<div class="c100 p15">
+								<span>${reminder[i].day}</span>
+								<div class="slice">
+									<div class="bar"></div>
+									<div class="fill"></div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>`;
