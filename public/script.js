@@ -33,16 +33,16 @@ $(document).ready(function() {
 			if (percentage >= 85)
 				var color = "high";
 			var item = `
-			<div id="${i}" class="row">
+			<div id="item-${i}" class="row">
 				<div class="col-lg-12 reminder-item">
 					<div class="row pt-3 pb-3">
 						<div class="col-9 reminder-title">
-							<span class="edit" id="item-${i}-edit">
-								<button type="button" onclick="" class="btn btn-primary">Edit</button>
-								<button type="button" onclick="" class="btn btn-warning">Reset</button>
-								<button type="button" onclick="" class="btn btn-danger">Delete</button>
+							<span class="edit">
+								<button type="button" onclick="edit(${i})" class="btn btn-primary">Edit</button>
+								<button type="button" onclick="reset(${i})" class="btn btn-warning">Reset</button>
+								<button type="button" onclick="del(${i})" class="btn btn-danger">Delete</button>
 							</span>
-							<span class="item" id="item-${i}">${reminder[i].name}</span>
+							<span class="item">${reminder[i].name}</span>
 						</div>
 						<div class="col-3 reminder-count">
 							<div class="c100 ${color} p${percentage}">
@@ -76,6 +76,7 @@ $(document).ready(function() {
 		$("#reminder-day").val("");
 		$("#reminder-alert").val("");
 	});
+
 	$(".dayCount").click(function() {
 		// Hide all edit menu
 		$(".edit").hide();
@@ -87,18 +88,7 @@ $(document).ready(function() {
 		$(this).parent().find(".dayCount").hide();
 		$(this).parent().find(".cancel").show();
 	});
-/*
-	$(".reminder-title").click(function() {
-		// Hide all edit menu
-		$(".edit").hide();
-		$(".item").show();
-		$(".dayCount").show();
 
-		$(this).find(".edit").show();
-		$(this).find(".item").hide();
-		$(this).parent().find(".dayCount").hide();
-		$(this).parent().find(".cancel").show();
-	});*/
 	$(".cancel").click(function() {
 		// Hide all edit menu
 		$(".edit").hide();
@@ -160,10 +150,46 @@ $(document).ready(function() {
 	});
 });
 
-function addReminder(name, day, alert, date) {
+function edit(id) {
+ //console.log($("#item-" + id);
+}
+function reset(id) {
 
 }
+function del(id) {
+	// Confirmation
+	if (confirm("Are you sure you want to delete this reminder ?")) {
+		// get data from local storage
+		var data = getLocalStorage();
+		if (id === 0)
+			data.splice(0,1);
+		else
+			data.splice(id,id);
+		// Delete in local storage
+		localStorage.setItem("reminder", JSON.stringify(data));
+		// Delete in reminder
+		$("#item-" + id).remove();
+  }
+}
+function addReminder(name, day, alert, date) {
+	// Calculate days since reminder start
+	var dayStart_y = date.substring(0,4);
+	var dayStart_m = date.substring(4,6);
+	var dayStart_d = date.substring(6,8);
 
+	var given = moment(dayStart_y + "-" + dayStart_m + "-" + dayStart_d, "YYYY-MM-DD");
+	var current = moment().startOf('day');
+
+	var daysAgo = Math.abs(Math.round(moment.duration(given.diff(current)).asDays()));
+	
+}
+
+function getLocalStorage() {
+	// Get raw text from localStorage
+	var raw_reminder = localStorage.getItem("reminder");
+	// Parse it into an object array & return
+	return JSON.parse(raw_reminder);
+}
 function load() {
 // If reminder is null, make it into an array to avoid error at array.push
 if(!reminder)
