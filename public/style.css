@@ -17,7 +17,8 @@ body {
 	color: black;
 }
 .reminder-item {
-	background-color: #efc358;
+	background-color: #00a08e;
+	color: white;
 	border: 1px solid grey;
 	border-radius: 10px;
 	height: auto;
@@ -25,7 +26,7 @@ body {
 }
 .reminder-title {
 	font-size: 1.5em;
-	padding-top: 21px;
+	padding-top: 27px;
 }
 .reminder-count {
 	font-size: 24px;
