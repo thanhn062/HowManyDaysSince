@@ -4,6 +4,19 @@ var raw_reminder = localStorage.getItem("reminder");
 var reminder = JSON.parse(raw_reminder);
 // Make these variable global
 $(document).ready(function() {
+	//$("#nav-reminder").toggleClass("activeNav");
+	var dayStart = "20200930";
+	var dayStart_d = dayStart.substring(6,8);
+	var dayStart_m = dayStart.substring(4,6);
+	var dayStart_y = dayStart.substring(0,4);
+
+	var given = moment(dayStart_y + "-" + dayStart_m + "-" + dayStart_d, "YYYY-MM-DD");
+	var current = moment().startOf('day');
+
+	//Difference in number of days
+	var daysAgo = Math.abs(Math.round(moment.duration(given.diff(current)).asDays()));
+	console.log(daysAgo);
+
 	// Load existing data into reminder
 	// If reminder is null, make it into an array to avoid error at array.push
 	if(!reminder)
@@ -60,7 +73,12 @@ $(document).ready(function() {
 			$("#reminder-name").val("");
 			$("#reminder-day").val("");
 			$("#reminder-alert").val("");
-			var obj = {"name": name, "day": day, "alert": alert};
+			var obj = {
+				"name": name,
+				"day": day,
+				"alert": alert,
+				"start": moment().format("YYYYMMDD")
+			};
 			// Push new reminder into the array
 			reminder.push(obj);
 			// Add into localStorage
@@ -71,7 +89,14 @@ $(document).ready(function() {
 				<div class="col-lg-12 reminder-item">
 					<div class="row pt-3 pb-3">
 						<div class="col-9 reminder-title">${name}</div>
-						<div class="col-3 reminder-count">${day}</div>
+						<div class="col-3 reminder-count">
+							<div class="c100 p15">
+								<span>${day}</span>
+								<div class="slice">
+									<div class="bar"></div>
+									<div class="fill"></div>
+								</div>
+							</div></div>
 					</div>
 				</div>
 			</div>`;
