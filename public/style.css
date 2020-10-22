@@ -6,11 +6,15 @@ body {
 .navbar {
 	background-color: #00a08e;
 }
+
 .btn-lg {
 	width: 25%;
 	font-size: 10px;
 	text-align: center;
 	color: white;
+}
+.activeNav {
+	color: black;
 }
 .reminder-item {
 	background-color: #efc358;
