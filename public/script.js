@@ -24,7 +24,6 @@ $(document).ready(function() {
 			// Find percentage value of current day count & maximum day count
 			var percentage = Math.round((daysAgo/reminder[i].day)*100);
 			// Display data from localStorage
-			console.log(percentage);
 			if (percentage < 25)
 				var color = "";
 			if (percentage >= 25)
@@ -34,13 +33,21 @@ $(document).ready(function() {
 			if (percentage >= 85)
 				var color = "high";
 			var item = `
-			<div id="item-${i}" class="row">
+			<div id="${i}" class="row">
 				<div class="col-lg-12 reminder-item">
 					<div class="row pt-3 pb-3">
-						<div class="col-9 reminder-title">${reminder[i].name}</div>
+						<div class="col-9 reminder-title">
+							<span class="edit" id="item-${i}-edit">
+								<button type="button" onclick="" class="btn btn-primary">Edit</button>
+								<button type="button" onclick="" class="btn btn-warning">Reset</button>
+								<button type="button" onclick="" class="btn btn-danger">Delete</button>
+							</span>
+							<span class="item" id="item-${i}">${reminder[i].name}</span>
+						</div>
 						<div class="col-3 reminder-count">
 							<div class="c100 ${color} p${percentage}">
-								<span>${daysAgo}</span>
+								<span class="edit cancel"style="display: none">Cancel</span>
+								<span class="dayCount">${daysAgo}</span>
 								<div class="slice">
 									<div class="bar"></div>
 									<div class="fill"></div>
@@ -70,8 +77,27 @@ $(document).ready(function() {
 		$("#reminder-alert").val("");
 	});
 
-	$(".row").click(function() {
-		alert(this);
+	$(".reminder-title").click(function() {
+		// Hide all edit menu
+		$(".edit").hide();
+		$(".item").show();
+		$(".dayCount").show();
+
+		$(this).find(".edit").show();
+		$(this).find(".item").hide();
+		$(this).parent().find(".dayCount").hide();
+		$(this).parent().find(".cancel").show();
+	});
+	$(".cancel").click(function() {
+		// Hide all edit menu
+		$(".edit").hide();
+		$(".item").show();
+		$(".dayCount").show();
+
+		$(this).find(".edit").show();
+		$(this).find(".item").hide();
+		$(this).parent().find(".dayCount").show();
+		$(this).parent().find(".cancel").hide();
 	});
 
 	$(".btn-add").click(function() {
@@ -122,6 +148,10 @@ $(document).ready(function() {
 		}
 	});
 });
+
+function addReminder(name, day, alert, date) {
+
+}
 
 function load() {
 // If reminder is null, make it into an array to avoid error at array.push
