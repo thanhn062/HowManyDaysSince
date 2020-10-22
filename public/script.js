@@ -28,13 +28,13 @@ $(document).ready(function() {
 			if (percentage < 25)
 				var color = "";
 			if (percentage >= 25)
-				var color = "low"
+				var color = "low";
 			if (percentage >= 50)
-				var color = "med"
+				var color = "med";
 			if (percentage >= 85)
-				var color = "high"
+				var color = "high";
 			var item = `
-			<div class="row">
+			<div id="item-${i}" class="row">
 				<div class="col-lg-12 reminder-item">
 					<div class="row pt-3 pb-3">
 						<div class="col-9 reminder-title">${reminder[i].name}</div>
@@ -68,6 +68,10 @@ $(document).ready(function() {
 		$("#reminder-name").val("");
 		$("#reminder-day").val("");
 		$("#reminder-alert").val("");
+	});
+
+	$(".row").click(function() {
+		alert(this);
 	});
 
 	$(".btn-add").click(function() {
