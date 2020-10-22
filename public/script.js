@@ -23,15 +23,23 @@ $(document).ready(function() {
 			var daysAgo = Math.abs(Math.round(moment.duration(given.diff(current)).asDays()));
 			// Find percentage value of current day count & maximum day count
 			var percentage = Math.round((daysAgo/reminder[i].day)*100);
-			console.log(percentage);
 			// Display data from localStorage
+			console.log(percentage);
+			if (percentage < 25)
+				var color = "";
+			if (percentage >= 25)
+				var color = "low"
+			if (percentage >= 50)
+				var color = "med"
+			if (percentage >= 85)
+				var color = "high"
 			var item = `
 			<div class="row">
 				<div class="col-lg-12 reminder-item">
 					<div class="row pt-3 pb-3">
 						<div class="col-9 reminder-title">${reminder[i].name}</div>
 						<div class="col-3 reminder-count">
-							<div class="c100 p${percentage}">
+							<div class="c100 ${color} p${percentage}">
 								<span>${daysAgo}</span>
 								<div class="slice">
 									<div class="bar"></div>
