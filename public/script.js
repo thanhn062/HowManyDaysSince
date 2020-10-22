@@ -46,7 +46,7 @@ $(document).ready(function() {
 						</div>
 						<div class="col-3 reminder-count">
 							<div class="c100 ${color} p${percentage}">
-								<span class="edit cancel"style="display: none">Cancel</span>
+								<span class="edit cancel"style="display: none"><i class="fa fa-times fa-lg"></i></span>
 								<span class="dayCount">${daysAgo}</span>
 								<div class="slice">
 									<div class="bar"></div>
@@ -76,7 +76,18 @@ $(document).ready(function() {
 		$("#reminder-day").val("");
 		$("#reminder-alert").val("");
 	});
+	$(".dayCount").click(function() {
+		// Hide all edit menu
+		$(".edit").hide();
+		$(".item").show();
+		$(".dayCount").show();
 
+		$(this).closest(".row").find(".edit").show();
+		$(this).closest(".row").find(".item").hide();
+		$(this).parent().find(".dayCount").hide();
+		$(this).parent().find(".cancel").show();
+	});
+/*
 	$(".reminder-title").click(function() {
 		// Hide all edit menu
 		$(".edit").hide();
@@ -87,7 +98,7 @@ $(document).ready(function() {
 		$(this).find(".item").hide();
 		$(this).parent().find(".dayCount").hide();
 		$(this).parent().find(".cancel").show();
-	});
+	});*/
 	$(".cancel").click(function() {
 		// Hide all edit menu
 		$(".edit").hide();
