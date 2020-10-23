@@ -1,16 +1,5 @@
-// Get raw text from localStorage
-var raw_reminder = localStorage.getItem("reminder");
-// Parse it into an object array
-var reminder = JSON.parse(raw_reminder);
-// Make these variable global for initial loading.
 $(document).ready(function() {
-	// Display data into reminder
-	// If reminder is null, make it into an array to avoid error at array.push
-	if(!reminder)
-		reminder = [];
-	else
-		load();
-
+	init();
 	$(".btn-circle").click(function() {
 		$("#reminder-list").hide();
 		$(".add-menu").show();
@@ -63,9 +52,10 @@ $(document).ready(function() {
 				"date": moment().format("YYYYMMDD")
 			};
 			// Push new reminder into the array
-			reminder.push(obj);
+			var data = getLocalStorage();
+			data.push(obj);
 			// Add into localStorage
-			localStorage.setItem("reminder", JSON.stringify(reminder));
+			localStorage.setItem("reminder", JSON.stringify(data));
 			// Refresh reminder list
 			// Delete all existing content
 			$("#reminder-list").empty();
@@ -86,11 +76,28 @@ function edit(id) {
  //console.log($("#item-" + id);
 }
 function reset(id) {
-
+	// Confirmation
+	if (confirm("Reset confirmation, press OK to proceed.")) {
+		// Get data from local storage
+		var data = getLocalStorage();
+		// Edit date array data to today
+		data[id].date = moment().format("YYYYMMDD");
+		// Make changes in local storage
+		localStorage.setItem("reminder", JSON.stringify(data));
+		// Refresh reminder list
+		// Delete all existing content
+		$("#reminder-list").empty();
+		// reload data from local storage
+		load();
+		// Show reminder list & hide add menu
+		$("#reminder-list").show();
+		$(".add-menu").hide();
+		$(".alert-warning").hide();
+	}
 }
 function del(id) {
 	// Confirmation
-	if (confirm("Are you sure you want to delete this reminder ?")) {
+	if (confirm("Delete confirmation, press OK to proceed.")) {
 		// get data from local storage
 		var data = getLocalStorage();
 		if (id === 0)
@@ -116,16 +123,16 @@ function load() {
 	// First loop through data
 	for (var i in data) {
 		// Calculate days since reminder start
-		var dayStart_y = reminder[i].date.substring(0,4);
-		var dayStart_m = reminder[i].date.substring(4,6);
-		var dayStart_d = reminder[i].date.substring(6,8);
+		var dayStart_y = data[i].date.substring(0,4);
+		var dayStart_m = data[i].date.substring(4,6);
+		var dayStart_d = data[i].date.substring(6,8);
 
 		var given = moment(dayStart_y + "-" + dayStart_m + "-" + dayStart_d, "YYYY-MM-DD");
 		var current = moment().startOf('day');
 
 		var daysAgo = Math.abs(Math.round(moment.duration(given.diff(current)).asDays()));
 		// Find percentage value of current day count & maximum day count
-		var percentage = Math.round((daysAgo/reminder[i].day)*100);
+		var percentage = Math.round((daysAgo/data[i].day)*100);
 		// Display data from localStorage
 		if (percentage < 25)
 			var color = "";
@@ -145,7 +152,7 @@ function load() {
 							<button type="button" onclick="reset(${i})" class="btn btn-warning">Reset</button>
 							<button type="button" onclick="del(${i})" class="btn btn-danger">Delete</button>
 						</span>
-						<span class="item">${reminder[i].name}</span>
+						<span class="item">${data[i].name}</span>
 					</div>
 					<div class="col-3 reminder-count">
 						<div class="c100 ${color} p${percentage}">
@@ -162,4 +169,13 @@ function load() {
 		</div>`;
 		$("#reminder-list").append(item);
 	}
+}
+function init() {
+	// Get data from local storage
+	var data = getLocalStorage();
+	// If data is null, make it into an empty array to avoid error at array.push
+	if(!data)
+		data = [];
+	else
+		load();
 }
