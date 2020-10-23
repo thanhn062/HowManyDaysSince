@@ -2,6 +2,8 @@ $(document).ready(function() {
 	init();
 	$(".btn-circle").click(function() {
 		$("#reminder-list").hide();
+		// Default date as today
+		$("#reminder-date").attr("placeholder",moment().format("YYYY-MM-DD"));
 		$(".add-menu").show();
 	});
 	$(".btn-cancel").click(function() {
@@ -11,7 +13,7 @@ $(document).ready(function() {
 		// Empty fields
 		$("#reminder-name").val("");
 		$("#reminder-day").val("");
-		$("#reminder-alert").val("");
+		$("#reminder-date").val("");
 	});
 	$(".dayCount").click(function() {
 		// Hide all edit menu
@@ -36,22 +38,25 @@ $(document).ready(function() {
 		$(this).parent().find(".cancel").hide();
 	});
 	$(".btn-add").click(function() {
-		// KNOWN BUG FOR ADDING NEW Reminder
-		// After adding new reminder, edit menu wont show when click onto dayCount
 		var name = $("#reminder-name").val();
 		var day = $("#reminder-day").val();
-		var alert = $("#reminder-alert").val();
-
+		var date = $("#reminder-date").val();
+		// if date is empty, use today
+		if (!date)
+			date = moment().format("YYYYMMDD");
+		else
+			// remove dash for raw date
+			date = date.replace(/-/g, "");
+		// Field validation
 		if(name && day) {
 			// Empty fields
 			$("#reminder-name").val("");
 			$("#reminder-day").val("");
-			$("#reminder-alert").val("");
+			$("#reminder-date").val("");
 			var obj = {
 				"name": name,
 				"day": day,
-				"alert": alert,
-				"date": moment().format("YYYYMMDD")
+				"date": date
 			};
 			// Load local storage into data
 			var data = getLocalStorage();
