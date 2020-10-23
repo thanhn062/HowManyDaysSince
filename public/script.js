@@ -1,3 +1,5 @@
+// set currentEditID as global value for easy passing current editing reminder item
+var currentEditID;
 $(document).ready(function() {
 	init();
 	$(".btn-circle").click(function() {
@@ -84,6 +86,37 @@ $(document).ready(function() {
 		else
 			$(".alert-warning").show();
 	});
+	$(".btn-edit").click(function() {
+		// Get input values
+		var name = $("#reminder-name-edit").val();
+		var day = $("#reminder-day-edit").val();
+		var date = $("#reminder-date-edit").val();
+		// remove dash for raw date
+		date = date.replace(/-/g, "");
+		console.log(date);
+		// input validation
+		if (name && day && date) {
+			// get local storage data
+			var data = getLocalStorage();
+			// modify reminder data
+			data[currentEditID].name = name;
+			data[currentEditID].day = day;
+			data[currentEditID].date = date;
+			// modify local storage
+			localStorage.setItem("reminder", JSON.stringify(data));
+			// Refresh reminder list
+			// Delete all existing content
+			$("#reminder-list").empty();
+			// reload data from local storage
+			load();
+			// Show reminder list & hide add menu
+			$("#reminder-list").show();
+			$(".edit-menu").hide();
+			$(".alert-warning").hide();
+		}
+		else
+			$(".alert-warning").show();
+	});
 });
 // Delegation for newly added remind item
 $(document).on("click",".dayCount",function() {
@@ -124,6 +157,7 @@ function edit(id) {
 	var day = data[id].date.substring(6,8);
 	var date = `${year}-${month}-${day}`;
 	$("#reminder-date-edit").val(date);
+	currentEditID = id;
 }
 function reset(id) {
 	// Confirmation
