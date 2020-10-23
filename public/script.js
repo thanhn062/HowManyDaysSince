@@ -36,6 +36,8 @@ $(document).ready(function() {
 		$(this).parent().find(".cancel").hide();
 	});
 	$(".btn-add").click(function() {
+		// KNOWN BUG FOR ADDING NEW Reminder
+		// After adding new reminder, edit menu wont show when click onto dayCount
 		var name = $("#reminder-name").val();
 		var day = $("#reminder-day").val();
 		var alert = $("#reminder-alert").val();
@@ -51,8 +53,9 @@ $(document).ready(function() {
 				"alert": alert,
 				"date": moment().format("YYYYMMDD")
 			};
-			// Push new reminder into the array
+			// Load local storage into data
 			var data = getLocalStorage();
+			// Push new reminder into the array
 			data.push(obj);
 			// Add into localStorage
 			localStorage.setItem("reminder", JSON.stringify(data));
@@ -61,6 +64,7 @@ $(document).ready(function() {
 			$("#reminder-list").empty();
 			// reload data from local storage
 			load();
+
 			// Show reminder list & hide add menu
 			$("#reminder-list").show();
 			$(".add-menu").hide();
@@ -70,6 +74,29 @@ $(document).ready(function() {
 			$(".alert-warning").show();
 		}
 	});
+});
+// Delegation for newly added remind item
+$(document).on("click",".dayCount",function() {
+	// Hide all edit menu
+	$(".edit").hide();
+	$(".item").show();
+	$(".dayCount").show();
+
+	$(this).closest(".row").find(".edit").show();
+	$(this).closest(".row").find(".item").hide();
+	$(this).parent().find(".dayCount").hide();
+	$(this).parent().find(".cancel").show();
+});
+$(document).on("click",".cancel",function() {
+	// Hide all edit menu
+	$(".edit").hide();
+	$(".item").show();
+	$(".dayCount").show();
+
+	$(this).find(".edit").show();
+	$(this).find(".item").hide();
+	$(this).parent().find(".dayCount").show();
+	$(this).parent().find(".cancel").hide();
 });
 // Edit menu functions
 function edit(id) {
