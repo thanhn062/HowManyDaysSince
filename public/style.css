@@ -61,7 +61,7 @@ body {
 	right: 10px;
 	bottom: 100px;
 }
-.add-menu, .alert-warning, .edit {
+.add-menu, .edit-menu, .alert-warning, .edit {
 	display: none;
 }
 
