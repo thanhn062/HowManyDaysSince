@@ -7,8 +7,14 @@ $(document).ready(function() {
 		$(".add-menu").show();
 	});
 	$(".btn-cancel").click(function() {
+		// Hide all edit menu
+		$(".edit").hide();
+		$(".item").show();
+		$(".dayCount").show();
+
 		$("#reminder-list").show();
 		$(".add-menu").hide();
+		$(".edit-menu").hide();
 		$(".alert-warning").hide();
 		// Empty fields
 		$("#reminder-name").val("");
@@ -75,9 +81,8 @@ $(document).ready(function() {
 			$(".add-menu").hide();
 			$(".alert-warning").hide();
 		}
-		else {
+		else
 			$(".alert-warning").show();
-		}
 	});
 });
 // Delegation for newly added remind item
@@ -105,7 +110,20 @@ $(document).on("click",".cancel",function() {
 });
 // Edit menu functions
 function edit(id) {
- //console.log($("#item-" + id);
+	// Show add menu
+	$("#reminder-list").hide();
+	$(".edit-menu").show();
+	// Get data from local storage
+	var data = getLocalStorage();
+	// Set edit menu input fields to current reminder's data
+	$("#reminder-name-edit").val(data[id].name);
+	$("#reminder-day-edit").val(data[id].day);
+	// reformat date
+	var year = data[id].date.substring(0,4);
+	var month = data[id].date.substring(4,6);
+	var day = data[id].date.substring(6,8);
+	var date = `${year}-${month}-${day}`;
+	$("#reminder-date-edit").val(date);
 }
 function reset(id) {
 	// Confirmation
