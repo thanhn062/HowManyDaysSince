@@ -165,6 +165,8 @@ function load() {
 		var daysAgo = Math.abs(Math.round(moment.duration(given.diff(current)).asDays()));
 		// Find percentage value of current day count & maximum day count
 		var percentage = Math.round((daysAgo/data[i].day)*100);
+		if (percentage > 100)
+			percentage = 100;
 		// Display data from localStorage
 		if (percentage < 25)
 			var color = "";
