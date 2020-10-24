@@ -1,20 +1,14 @@
 {
-  "name": "muse",
+  "name": "How Many Days Since I",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "author": "",
+  "author": "Thanh Ngo",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "2.4.3",
-    "express": "^4.17.0",
-    "express-session": "^1.16.1",
-    "mysql2": "^1.6.5",
-    "passport": "^0.4.0",
-    "passport-local": "^1.0.0",
-    "sequelize": "^5.8.6"
+    "express": "^4.17.1"
   }
 }
