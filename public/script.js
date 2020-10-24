@@ -260,8 +260,11 @@ function init() {
 	// Get data from local storage
 	var data = getLocalStorage();
 	// If data is null, make it into an empty array to avoid error at array.push
-	if(!data)
+	// add empty array reminder[] to LocalStorage
+	if(!data) {
 		data = [];
+		localStorage.setItem("reminder", JSON.stringify(data));
+	}
 	else
 		load();
 }
