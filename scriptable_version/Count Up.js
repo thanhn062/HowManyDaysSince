@@ -1,48 +1,42 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-green; icon-glyph: calendar-alt;
+
 // DAY COUNT SCRIPT
 const moment = importModule("lib/moment");
-let data = [];
-/*
-today = moment().format("YYYYMMDD");
-today = today.replace(/-/g, "");
-*/
+// declare global vars
+let data = [], id = 0;
+
 // Determine if the user is using iCloud.
 let files = FileManager.local()
 const iCloudInUse = files.isFileStoredIniCloud(module.filename)
+
 // If so, use an iCloud file manager.
 files = iCloudInUse ? FileManager.iCloud() : files
-// Set path
+
+// Set path for data file
 const pathToCode = files.joinPath(files.documentsDirectory(), "countUp.json")
 // Read existing data
 let content = files.readString(pathToCode);
-// Fill data[] with read file's data
+// Fill data[] with file's content & parse it into an array
 data = JSON.parse(content);
-loadTable(data);
-//log(content);
-//files.writeString(pathToCode, "Test1");
-//if (!files.fileExists(pathToCode))
-//  files.writeString(pathToCode, "Test1");
-//else {
-  // read the file duhj
-//}
-// Make new table
+// Make new table, variables and table's setting
 let table = new UITable();
 let row, cell;
 let dismissable = false && config.runsInApp;
 table.showSeparators = true;
-loadTable()
-t
+// Show table
+loadTable();
 
+// ========================
 // Functions
-function updateTable() {
-
-}
+// ========================
+// Create new table and add create button and header to the table
 async function loadTable() {
   // Create count button
   // +
   row = new UITableRow();
+  row.isHeader = true;
   row.height = 80;
   row.dismissOnSelect = dismissable;
   row.onSelect = async () => {
@@ -59,7 +53,7 @@ async function loadTable() {
       return;
     }
   }
-  row.addText("+").centerAligned();
+  row.addText("How Many Days Since I\n+").centerAligned();
   table.addRow(row);
 
   // Create table header
@@ -67,16 +61,40 @@ async function loadTable() {
   row.isHeader = true;
   row.height = 80;
   cell = row.addText("Name");
-  cell = row.addText("day(s) ago");
+  cell = row.addText("Day(s)");
   cell = row.addText("Expire in");
   cell.centerAligned();
   table.addRow(row);
+  // load existing items from countUp.js
+  // Loop through data array
+  for (var i in data) {
+    // Update id number from existing data
+    id++;
+    //name = data[i].name;
+    //log(date[i].date);
+    //date = Date.parse(date[i].date);
+    //expire = data[i].expire;
+    let daysAgo = getDaysAgo(data[i].date);
+
+    // create new table row
+    row = new UITableRow();
+    row.height = 80;
+
+    cell = row.addText(data[i].name + "");
+    cell = row.addText(daysAgo + "");
+    log(data[i].date);
+
+    cell = row.addText((data[i].expire-daysAgo) + "");
+    cell.centerAligned();
+    table.addRow(row);
+  }
   // Show table
-  able.present();
+  table.present();
 }
-function addData(item) {
+function addToData(item) {
   toAdd =
       {
+        "id": "" + id + "",
         "name": item.name,
         "date": item.date,
         "expire": item.expire,
@@ -88,11 +106,10 @@ function addData(item) {
 }
 function getDaysAgo(date) {
   // Calculate how many days ago from today
-  let dayStart = date;
+  let dayStart = moment(date, "YYYY-MM-DD");
   let today = moment().startOf('day');
   let diff = today-dayStart;
-  let daysAgo = Math.round(moment.duration(diff).asDays())+1;
-
+  let daysAgo = Math.round(moment.duration(diff).asDays());
   return daysAgo
 }
 function addToTable(item) {
@@ -104,21 +121,21 @@ function addToTable(item) {
     let alert = new Alert()
     alert.title = "Test";
     alert.addAction("Ok");
-    alert.message = item.name;
+    alert.message = item.id;
     alert.presentAlert();
   }
   // get days ago
+  log(item.date);
   let daysAgo = getDaysAgo(item.date);
   let cell;
-  cell = row.addText(item.name);
+  cell = row.addText(item.name + "");
   cell = row.addText(daysAgo + "");
-  cell.centerAligned();
   cell = row.addText((item.expire-daysAgo) + "");
   cell.centerAligned();
   table.addRow(row);
   table.reload();
   // Push new count items to data[] array and write it into a file
-  addData(item);
+  addToData(item);
 }
 async function createCount() {
   let prompt = new Alert();
@@ -135,6 +152,7 @@ async function createCount() {
   // Pick date
   let date = new DatePicker();
   let datePick = await date.pickDate();
+  datePick = formatDate(datePick);
   // Prompt to get expire date
   prompt = new Alert();
   prompt.title = "Expiration Date";
@@ -144,8 +162,12 @@ async function createCount() {
   await prompt.presentAlert();
   dateExpire = prompt.textFieldValue();
   // Data validation
-  if (isNumeric(dateExpire))
-    obj = {"name":input,"date":datePick,"expire":dateExpire};
+  if (isNumeric(dateExpire)) {
+    // Update id number
+    id++;
+    // Create item object
+    obj = {"id": "" + id + "", "name":input,"date":datePick,"expire":dateExpire};
+  }
   else{
     prompt = new Alert();
     prompt.title = "Error";
@@ -168,9 +190,20 @@ function formatDate(date) {
     if (day.length < 2)
         day = '0' + day;
 
-    return [year, month, day].join("");
+    return [year, month, day].join("-");
 }
 // https://stackoverflow.com/questions/9716468/pure-javascript-a-function-like-jquerys-isnumeric
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
+//log(content);
+//files.writeString(pathToCode, "Test1");
+//if (!files.fileExists(pathToCode))
+//  files.writeString(pathToCode, "Test1");
+//else {
+  // read the file duhj
+//}
+/*
+today = moment().format("YYYYMMDD");
+today = today.replace(/-/g, "");
+*/
