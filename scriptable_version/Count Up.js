@@ -5,10 +5,9 @@
 const moment = importModule("lib/moment");
 today = moment().format("YYYYMMDD");
 today = today.replace(/-/g, "");
-
 // Make new table
 let table = new UITable();
-let row, cell, count;
+let row, cell;
 let dismissable = false && config.runsInApp;
 table.showSeparators = true;
 
@@ -22,44 +21,71 @@ row.addText("Count Up").centerAligned();
 // Create count list
 // Add +
 row = new UITableRow();
+
 row.height = 80;
 row.dismissOnSelect = dismissable;
 row.onSelect = async () => {
-  let count_1 = await createCount();
-  let dayStart = count_1.date;
-  let today = moment().startOf('day');
-  let diff = today-dayStart;
-  let daysAgo = await Math.round(moment.duration(diff).asDays())+1;
+  // Create count item object
+  let count = await createCount();
+  // Dsiplay count item to table
+  addToTable(count);
   if (daysAgo < 0) {
-    let alert = new Alert()
-    alert.title = "Error"
-    alert.message = "You can't pick further than today."
-    alert.addAction("Ok")
-    await alert.presentAlert()
+    alert = new Alert()
+    alert.title = "Error";
+    alert.addAction("Ok");
+    alert.message = "You can't pick further than today.";
+    await alert.presentAlert();
     return;
   }
-  log(daysAgo);
 }
 row.addText("+").centerAligned();
 table.addRow(row);
 table.present();
 
 // Functions
+function getDaysAgo(date) {
+  // Calculate how many days ago from today
+  let dayStart = date;
+  let today = moment().startOf('day');
+  let diff = today-dayStart;
+  let daysAgo = Math.round(moment.duration(diff).asDays())+1;
+  return daysAgo
+}
+function addToTable(item) {
+  // Make new row
+  let row = new UITableRow();
+  row.height = 80;
+  row.dismissOnSelect = dismissable;
+  // get days ago
+  let daysAgo = getDaysAgo(item.date);
+
+  let cell;
+  cell = row.addText(item.name);
+  cell = row.addText(daysAgo + " day(s) ago");
+  cell.centerAligned();
+  table.addRow(row);
+  table.reload();
+  /*
+  row = new UITableRow();
+  table.addRow(row);
+  row.height = 80;
+  row.dismissOnSelect = dismissable;
+  cell = row.addText(item.name);
+  cell = row.addText(item.date);
+  */
+}
 async function createCount() {
   let prompt = new Alert();
   prompt.title = "Count Title";
-  prompt.message = "Limit 30 characters";
+  prompt.message = "Limit 30 characters\n(leave empty to cancel)";
   prompt.addTextField();
   prompt.addAction("Ok");
-  prompt.addCancelAction("Cancel");
   await prompt.presentAlert();
   input = prompt.textFieldValue();
   if (!input || input === "")
     return;
   let date = new DatePicker();
   let datePick = await date.pickDate();
-  //let rawDate = formatDate(datePick);
-
   obj = {"name":input,"date":datePick};
   return obj;
 }
