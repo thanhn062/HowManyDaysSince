@@ -11,17 +11,9 @@ let row, cell;
 let dismissable = false && config.runsInApp;
 table.showSeparators = true;
 
-// Table header
+// Create count item button
+// +
 row = new UITableRow();
-row.isHeader = true;
-row.height = 80;
-table.addRow(row);
-row.addText("Count Up").centerAligned();
-
-// Create count list
-// Add +
-row = new UITableRow();
-
 row.height = 80;
 row.dismissOnSelect = dismissable;
 row.onSelect = async () => {
@@ -40,6 +32,18 @@ row.onSelect = async () => {
 }
 row.addText("+").centerAligned();
 table.addRow(row);
+
+// Table header
+row = new UITableRow();
+row.isHeader = true;
+row.height = 80;
+cell = row.addText("Name");
+cell = row.addText("day(s) ago");
+cell = row.addText("Expire in");
+cell.centerAligned();
+table.addRow(row);
+
+// Show table
 table.present();
 
 // Functions
@@ -49,6 +53,7 @@ function getDaysAgo(date) {
   let today = moment().startOf('day');
   let diff = today-dayStart;
   let daysAgo = Math.round(moment.duration(diff).asDays())+1;
+
   return daysAgo
 }
 function addToTable(item) {
@@ -58,35 +63,53 @@ function addToTable(item) {
   row.dismissOnSelect = dismissable;
   // get days ago
   let daysAgo = getDaysAgo(item.date);
-
   let cell;
   cell = row.addText(item.name);
-  cell = row.addText(daysAgo + " day(s) ago");
+  cell = row.addText(daysAgo + "");
+  cell.centerAligned();
+  cell = row.addText((item.expire-daysAgo) + "");
   cell.centerAligned();
   table.addRow(row);
   table.reload();
-  /*
-  row = new UITableRow();
-  table.addRow(row);
-  row.height = 80;
-  row.dismissOnSelect = dismissable;
-  cell = row.addText(item.name);
-  cell = row.addText(item.date);
-  */
 }
 async function createCount() {
   let prompt = new Alert();
-  prompt.title = "Count Title";
-  prompt.message = "Limit 30 characters\n(leave empty to cancel)";
+  // Prompt to get count's name
+  prompt.title = "Item Title";
+  prompt.message = "Limit 30 characters";
   prompt.addTextField();
   prompt.addAction("Ok");
   await prompt.presentAlert();
   input = prompt.textFieldValue();
+  // Data validation
   if (!input || input === "")
     return;
+  // Prompt to pick date
+  prompt = new Alert();
+  prompt.title = "Start Date";
+  prompt.message = "Pick the start date for this count up";
+  prompt.addAction("Ok");
+  await prompt.presentAlert();
   let date = new DatePicker();
   let datePick = await date.pickDate();
-  obj = {"name":input,"date":datePick};
+  // Prompt to get expire date
+  prompt = new Alert();
+  prompt.title = "Expiration Date";
+  prompt.message = "Pick how many days for this count up to expire\n---\nThe counter will still count when it gets past the expiration date\n\nThis is mainly for visual display of the counter and showing your count progression";
+  prompt.addAction("Ok");
+  prompt.addTextField();
+  await prompt.presentAlert();
+  dateExpire = prompt.textFieldValue();
+  // Data validation
+  if (isNumeric(dateExpire))
+    obj = {"name":input,"date":datePick,"expire":dateExpire};
+  else{
+    prompt = new Alert();
+    prompt.title = "Error";
+    prompt.message = "Expiration date needs to be a number";
+    prompt.addAction("Ok");
+    return;
+  }
   return obj;
 }
 
@@ -104,29 +127,8 @@ function formatDate(date) {
 
     return [year, month, day].join("");
 }
-/*
-// Make new row
-let row_1 = new UITableRow();
-// Set row height to 80px
-row_1.height = 80;
-let cell;
-cell = row_1.addButton("Add");
-cell = row_1.addButton("2");
-cell = row_1.addButton("3");
-cell.centerAligned()
 
-// Make 2nd row
-let row_2 = new UITableRow();
-row_2.height = 50;
-cell = row_2.addText("hi");
-cell.centerAligned();
-// Add row into table
-table.addRow(row_1);
-table.addRow(row_2);*/
-/*
-let alert = new Alert()
-alert.title = "My alert"
-alert.message = "alert"
-alert.addAction("Ok")
-await alert.presentAlert()
-*/
+// https://stackoverflow.com/questions/9716468/pure-javascript-a-function-like-jquerys-isnumeric
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
