@@ -4,6 +4,7 @@
 
 // DAY COUNT SCRIPT
 const moment = importModule("lib/moment");
+
 // declare global vars
 let data = [], id = 0;
 
@@ -16,21 +17,26 @@ files = iCloudInUse ? FileManager.iCloud() : files
 
 // Set path for data file
 const pathToCode = files.joinPath(files.documentsDirectory(), "countUp.json")
+
 // Read existing data
 let content = files.readString(pathToCode);
+
 // Fill data[] with file's content & parse it into an array
 data = JSON.parse(content);
+
 // Make new table, variables and table's setting
 let table = new UITable();
 let row, cell;
 let dismissable = false && config.runsInApp;
 table.showSeparators = true;
+
 // Show table
 loadTable();
 
 // ========================
 // Functions
 // ========================
+
 // Create new table and add create button and header to the table
 async function loadTable() {
   // Create count button
@@ -53,7 +59,7 @@ async function loadTable() {
       return;
     }
   }
-  row.addText("How Many Days Since I\n+").centerAligned();
+  row.addText("+").centerAligned();
   table.addRow(row);
 
   // Create table header
@@ -76,6 +82,7 @@ async function loadTable() {
   // Show table
   table.present();
 }
+// create Count Object
 async function createCount() {
   let prompt = new Alert();
   // Prompt to get count's name
@@ -138,11 +145,20 @@ function addToTable(item) {
   row.dismissOnSelect = dismissable;
   row.onSelect = async () => {
     let alert = new Alert()
-    alert.title = "Test";
-    alert.addAction("Ok");
-    alert.message = item.id;
-    alert.presentAlert();
-  }
+    //alert.title = "Test";
+    //alert.message = "";
+    alert.addAction("Reset");
+    alert.addAction("Delete");
+    alert.addAction("Cancel");
+    let respond = await alert.presentAlert();
+    if (respond == "0")
+      resetCount(item.id);
+    else if (respond == "1")
+      deleteCount(item.id);
+    else
+      return
+
+   }
   // get days ago
   let daysAgo = getDaysAgo(item.date);
   let cell;
@@ -152,8 +168,40 @@ function addToTable(item) {
   cell.centerAligned();
   table.addRow(row);
   table.reload();
-  // Push new count items to data[] array and write it into a file
-  //addToData(item);
+}
+function resetCount(id) {
+  let today = moment().startOf('day');
+  // Reformat Date obj to string for storing
+  today = formatDate(today);
+  // Reset count date to today
+  data[id-1].date = today;
+  
+  // update changes to file
+  myJSON = JSON.stringify(data);
+  files.writeString(pathToCode, myJSON);
+  // remove all from table
+  table.removeAllRows()
+  // recreate the table
+  loadTable(data);
+  table.reload();
+}
+function deleteCount(id) {  
+  // remove item with id matched with id from data[]
+  data = data.filter(item => item.id !== id);
+  log(data)
+  // Loop through and reassign id of data[] elements
+  for (var i in data) {
+    log(i);
+    data[i].id = i;
+  }
+  // update changes to file
+  myJSON = JSON.stringify(data);
+  files.writeString(pathToCode, myJSON);
+  // remove all from table
+  table.removeAllRows()
+  // recreate the table
+  loadTable(data);
+  table.reload();
 }
 function getDaysAgo(date) {
   // Calculate how many days ago from today
@@ -181,14 +229,3 @@ function formatDate(date) {
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
-//log(content);
-//files.writeString(pathToCode, "Test1");
-//if (!files.fileExists(pathToCode))
-//  files.writeString(pathToCode, "Test1");
-//else {
-  // read the file duhj
-//}
-/*
-today = moment().format("YYYYMMDD");
-today = today.replace(/-/g, "");
-*/
