@@ -70,72 +70,11 @@ async function loadTable() {
   for (var i in data) {
     // Update id number from existing data
     id++;
-    //name = data[i].name;
-    //log(date[i].date);
-    //date = Date.parse(date[i].date);
-    //expire = data[i].expire;
-    let daysAgo = getDaysAgo(data[i].date);
-
-    // create new table row
-    row = new UITableRow();
-    row.height = 80;
-
-    cell = row.addText(data[i].name + "");
-    cell = row.addText(daysAgo + "");
-    log(data[i].date);
-
-    cell = row.addText((data[i].expire-daysAgo) + "");
-    cell.centerAligned();
-    table.addRow(row);
+    let daysAgo = await getDaysAgo(data[i].date);
+    addToTable(data[i]);
   }
   // Show table
   table.present();
-}
-function addToData(item) {
-  toAdd =
-      {
-        "id": "" + id + "",
-        "name": item.name,
-        "date": item.date,
-        "expire": item.expire,
-      };
-  data.push(toAdd);
-  // Write to file (TESTING)
-  myJSON = JSON.stringify(data);
-  files.writeString(pathToCode, myJSON);
-}
-function getDaysAgo(date) {
-  // Calculate how many days ago from today
-  let dayStart = moment(date, "YYYY-MM-DD");
-  let today = moment().startOf('day');
-  let diff = today-dayStart;
-  let daysAgo = Math.round(moment.duration(diff).asDays());
-  return daysAgo
-}
-function addToTable(item) {
-  // Make new row
-  let row = new UITableRow();
-  row.height = 80;
-  row.dismissOnSelect = dismissable;
-  row.onSelect = async () => {
-    let alert = new Alert()
-    alert.title = "Test";
-    alert.addAction("Ok");
-    alert.message = item.id;
-    alert.presentAlert();
-  }
-  // get days ago
-  log(item.date);
-  let daysAgo = getDaysAgo(item.date);
-  let cell;
-  cell = row.addText(item.name + "");
-  cell = row.addText(daysAgo + "");
-  cell = row.addText((item.expire-daysAgo) + "");
-  cell.centerAligned();
-  table.addRow(row);
-  table.reload();
-  // Push new count items to data[] array and write it into a file
-  addToData(item);
 }
 async function createCount() {
   let prompt = new Alert();
@@ -167,6 +106,7 @@ async function createCount() {
     id++;
     // Create item object
     obj = {"id": "" + id + "", "name":input,"date":datePick,"expire":dateExpire};
+    addToData(obj);
   }
   else{
     prompt = new Alert();
@@ -177,6 +117,51 @@ async function createCount() {
     return;
   }
   return obj;
+}
+function addToData(item) {
+  toAdd =
+      {
+        "id": "" + id + "",
+        "name": item.name,
+        "date": item.date,
+        "expire": item.expire,
+      };
+  data.push(toAdd);
+  // Write to file (TESTING)
+  myJSON = JSON.stringify(data);
+  files.writeString(pathToCode, myJSON);
+}
+function addToTable(item) {
+  // Make new row
+  let row = new UITableRow();
+  row.height = 80;
+  row.dismissOnSelect = dismissable;
+  row.onSelect = async () => {
+    let alert = new Alert()
+    alert.title = "Test";
+    alert.addAction("Ok");
+    alert.message = item.id;
+    alert.presentAlert();
+  }
+  // get days ago
+  let daysAgo = getDaysAgo(item.date);
+  let cell;
+  cell = row.addText(item.name + "");
+  cell = row.addText(daysAgo + "");
+  cell = row.addText((item.expire-daysAgo) + "");
+  cell.centerAligned();
+  table.addRow(row);
+  table.reload();
+  // Push new count items to data[] array and write it into a file
+  //addToData(item);
+}
+function getDaysAgo(date) {
+  // Calculate how many days ago from today
+  let dayStart = moment(date, "YYYY-MM-DD");
+  let today = moment().startOf('day');
+  let diff = today-dayStart;
+  let daysAgo = Math.round(moment.duration(diff).asDays());
+  return daysAgo
 }
 // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd/23593099#23593099
 function formatDate(date) {
