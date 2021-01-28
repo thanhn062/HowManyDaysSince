@@ -4,7 +4,75 @@
 
 // DAY COUNT SCRIPT
 const moment = importModule("lib/moment");
+// =========================
+// WIDGET
+// =========================
+// declare canvas object and canvas setting
+const canvSize = 282;
+const canvTextSize = 40;
+const canvas = new DrawContext();
+canvas.opaque = false
+// widget appearance
+const widgetBGColor = new Color('000'); //Widget background color
+const circleTextColor = new Color('#fff'); //Widget text color
+// Progres circle colors
+const bgCircleColorFasting = new Color('00382c')
+const bgCircleColoreatingEnd = new Color('382e00') // bg circle color, full circle 382e00
+const progressCircleColoreatingEnd = new Color('24ffd7')
+const progressCircleColorFasting = new Color('FFD723')
 
+const argsParam = args.widgetParameter
+const fields = argsParam ? argsParam.split(',') : []
+const time = fields[1] ? fields[1].split(':') : '13:00'
+
+const device = Device
+const lang = device.language()
+
+const canvWidth = 15; // circle thickness
+const canvRadius = 120; // circle radius
+
+// Set canvas size & setting
+canvas.size = new Size(canvSize, canvSize);
+canvas.respectScreenScale = true;
+
+// create widget object
+let widget = new ListWidget();
+
+widget.setPadding(0, 5, 1, 0);
+loadWidget();
+/*
+let dayRadiusOffset = 60;
+
+makeCircle(dayRadiusOffset,
+    bgCircleColorFasting,
+    progressCircleColoreatingEnd,
+    Math.floor(50),
+    circleTextColor)
+
+drawText(
+    'Fastenzeit endet in',
+    circleTextColor,
+    20, 22
+)
+drawText(
+    "🧹",
+    circleTextColor,
+    140, 40
+)
+
+drawText(
+    '3 / 10',
+    circleTextColor,
+    195, 22
+)*/
+
+//widget.backgroundColor = widgetBGColor
+widget.addImage(canvas.getImage())
+Script.setWidget(widget);
+widget.presentSmall();
+Script.complete();
+
+// =========================
 // declare global vars
 let data = [], id = 0;
 
@@ -118,13 +186,14 @@ async function createCount() {
   else{
     prompt = new Alert();
     prompt.title = "Error";
-    prompt.message = "Expiration date needs to be a number";
+    prompt.message = "Expiration date need to be a number";
     prompt.addAction("Ok");
     await prompt.presentAlert();
     return;
   }
   return obj;
 }
+// add new entry object to data
 function addToData(item) {
   toAdd =
       {
@@ -134,10 +203,11 @@ function addToData(item) {
         "expire": item.expire,
       };
   data.push(toAdd);
-  // Write to file (TESTING)
+  // Write to file
   myJSON = JSON.stringify(data);
   files.writeString(pathToCode, myJSON);
 }
+// add new entry object to table
 function addToTable(item) {
   // Make new row
   let row = new UITableRow();
@@ -169,13 +239,14 @@ function addToTable(item) {
   table.addRow(row);
   table.reload();
 }
+// reset count from entry by id
 function resetCount(id) {
   let today = moment().startOf('day');
-  // Reformat Date obj to string for storing
+  // Reformat Date object to string for storing
   today = formatDate(today);
   // Reset count date to today
   data[id-1].date = today;
-  
+
   // update changes to file
   myJSON = JSON.stringify(data);
   files.writeString(pathToCode, myJSON);
@@ -185,10 +256,10 @@ function resetCount(id) {
   loadTable(data);
   table.reload();
 }
-function deleteCount(id) {  
+// delete count from entry by id
+function deleteCount(id) {
   // remove item with id matched with id from data[]
   data = data.filter(item => item.id !== id);
-  log(data)
   // Loop through and reassign id of data[] elements
   for (var i in data) {
     log(i);
@@ -203,6 +274,7 @@ function deleteCount(id) {
   loadTable(data);
   table.reload();
 }
+// calculate days ago from today given the date
 function getDaysAgo(date) {
   // Calculate how many days ago from today
   let dayStart = moment(date, "YYYY-MM-DD");
@@ -228,4 +300,108 @@ function formatDate(date) {
 // https://stackoverflow.com/questions/9716468/pure-javascript-a-function-like-jquerys-isnumeric
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
+}
+// =======================
+// Widget functions
+// =======================
+// Load basic display of count up widget
+function loadWidget() {
+  // Get 4 center point of 4 quadrants
+  let point = [];
+  point[0] = new Point(canvSize / 4, canvSize / 4);
+  point[1] = new Point(canvSize / 4*3, canvSize / 4);
+  point[2] = new Point(canvSize / 4, canvSize / 4*3);
+  point[3] = new Point(canvSize / 4*3, canvSize / 4*3);
+  log(point[0]);
+  // Circle setting
+  bgCircleColor = new Color('00382c');
+  fbCircleColor = new Color('24ffd7');
+
+  // circle dimension is 120px H and 120px W
+  outerD = 120;
+
+  // Create 4 circles on 4 quadrants -----------
+  for (var i = 0; i < 4; i++) {
+    quad_X = point[i].x - outerD/2;
+    quad_Y = point[i].y - outerD/2;
+    // Outer circle quadrant 1
+    circle = new Rect(quad_X,quad_Y,outerD,outerD);
+    canvas.setStrokeColor(bgCircleColor);
+    canvas.setLineWidth(canvWidth);
+    canvas.strokeEllipse(circle);
+    degree = 80;
+    // Inner progress circle quadrant 1
+    canvas.setFillColor(fbCircleColor);
+    for (t = 0; t < degree; t++) {
+      prog_x = point[i].x + (60) * sinDeg(t) - canvWidth / 2;
+      prog_y = point[i].y - (60) * cosDeg(t) - canvWidth / 2;
+      prog_r = new Rect(
+          prog_x,
+          prog_y,
+          canvWidth,
+          canvWidth
+        );
+        canvas.fillEllipse(prog_r);
+    }
+  }
+
+}
+/*
+function makeCircle(radiusOffset, bgCircleColor, fgCircleColor, degree, txtColor) {
+    let ctr = new Point(canvSize / 2, canvSize / 2)
+    // Outer circle
+    CoordOffset = -90
+    RadiusOffset = -90
+    bgx = ctr.x - (canvRadius - radiusOffset) + 16;
+    bgy = ctr.y - (canvRadius - radiusOffset) + 20;
+    bgd = 2 * (canvRadius - radiusOffset);
+    bgr = new Rect(
+        bgx + CoordOffset,
+        bgy + CoordOffset + 20,
+        bgd,
+        bgd
+    );
+
+    canvas.setStrokeColor(bgCircleColor);
+    canvas.setLineWidth(canvWidth);
+    canvas.strokeEllipse(bgr);
+
+    // Inner circle
+    canvas.setFillColor(fgCircleColor);
+    for (t = 0; t < degree; t++) {
+        rect_x = ctr.x + (canvRadius - radiusOffset) * sinDeg(t) - canvWidth / 2;
+        rect_y = ctr.y - (canvRadius - radiusOffset) * cosDeg(t) - canvWidth / 2;
+        rect_r = new Rect(
+            rect_x - 72,
+            rect_y - 50,
+            canvWidth,
+            canvWidth
+        );
+        canvas.fillEllipse(rect_r);
+    }
+}*/
+
+function drawText(txt, txtColor, txtOffset, fontSize) {
+    const txtRect = new Rect(
+        canvTextSize / 2 + 25,
+        txtOffset - canvTextSize / 2 - 65,
+        canvSize,
+        canvTextSize
+    );
+    canvas.setTextColor(txtColor);
+    canvas.setFont(Font.boldSystemFont(fontSize));
+    canvas.setTextAlignedLeft()
+    canvas.drawTextInRect(txt, txtRect)
+}
+
+function sinDeg(deg) {
+    return Math.sin((deg * Math.PI) / 180);
+}
+
+function cosDeg(deg) {
+    return Math.cos((deg * Math.PI) / 180);
+}
+
+function pad(num) {
+    return ("0" + parseInt(num)).substr(-2);
 }
