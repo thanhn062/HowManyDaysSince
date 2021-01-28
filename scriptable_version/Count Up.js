@@ -2,6 +2,13 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-green; icon-glyph: calendar-alt;
 
+// Title: Date Hourglass
+// Habit Hourglass
+// Can be use as expiration date check
+// ===== TODO ========
+// Open -> show menu -> Widget Display Setting
+//                      Widget Preview
+//                      Edit Counters
 // DAY COUNT SCRIPT
 const moment = importModule("lib/moment");
 // =========================
@@ -22,12 +29,6 @@ const progressCircleColoreatingEnd = new Color('24ffd7')
 const progressCircleColorFasting = new Color('FFD723')
 
 const argsParam = args.widgetParameter
-const fields = argsParam ? argsParam.split(',') : []
-const time = fields[1] ? fields[1].split(':') : '13:00'
-
-const device = Device
-const lang = device.language()
-
 const canvWidth = 15; // circle thickness
 const canvRadius = 120; // circle radius
 
@@ -37,34 +38,8 @@ canvas.respectScreenScale = true;
 
 // create widget object
 let widget = new ListWidget();
-
 widget.setPadding(0, 5, 1, 0);
 loadWidget();
-/*
-let dayRadiusOffset = 60;
-
-makeCircle(dayRadiusOffset,
-    bgCircleColorFasting,
-    progressCircleColoreatingEnd,
-    Math.floor(50),
-    circleTextColor)
-
-drawText(
-    'Fastenzeit endet in',
-    circleTextColor,
-    20, 22
-)
-drawText(
-    "🧹",
-    circleTextColor,
-    140, 40
-)
-
-drawText(
-    '3 / 10',
-    circleTextColor,
-    195, 22
-)*/
 
 //widget.backgroundColor = widgetBGColor
 widget.addImage(canvas.getImage())
@@ -100,7 +75,7 @@ table.showSeparators = true;
 
 // Show table
 loadTable();
-
+log (argsParam);
 // ========================
 // Functions
 // ========================
@@ -343,8 +318,36 @@ function loadWidget() {
         );
         canvas.fillEllipse(prog_r);
     }
+    // Text
+    /*
+    // Emoji symbol (text base)
+    let txtColor = new Color('fff');
+    const txtRect = new Rect(
+        quad_X+40,
+        quad_Y+40,
+        120,
+        120
+    );
+    // Show Symbol
+    canvas.setTextColor(txtColor);
+    canvas.setFont(Font.boldSystemFont(40));
+    canvas.setTextAlignedLeft();
+    canvas.drawTextInRect("🌹", txtRect);
+    */
+    // Image symbol
+    let files = FileManager.iCloud();
+    let image = files.readImage(files.documentsDirectory() + "/toothbrush.png")
+    //let image = files.readImage(files.documentsDirectory() + "/IMG_8546.jpg")
+    let img_r = new Rect(point[i].x-35,point[i].y-35,70,70);
+    canvas.drawImageInRect(image,img_r);
+    // progress caption
+    let txtColor = new Color('fff');
+    const txtRect = new Rect(quad_X,quad_Y+105,120,120);
+    canvas.setTextColor(txtColor);
+    canvas.setFont(Font.boldSystemFont(18));
+    canvas.setTextAlignedCenter();
+    canvas.drawTextInRect("1/90", txtRect);
   }
-
 }
 /*
 function makeCircle(radiusOffset, bgCircleColor, fgCircleColor, degree, txtColor) {
