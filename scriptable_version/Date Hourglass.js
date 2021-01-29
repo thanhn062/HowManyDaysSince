@@ -9,7 +9,6 @@
 // Open -> show menu -> Widget Display Setting
 //                      Widget Preview
 //                      Edit Counters
-// BUg, delete need to be use twice before deleteing mose likely have something to do with id
 const moment = importModule("lib/moment");
 // =========================
 // WIDGET
@@ -66,11 +65,16 @@ const iCloudInUse = files.isFileStoredIniCloud(module.filename)
 files = iCloudInUse ? FileManager.iCloud() : files
 
 // Set path for data file
-const pathToCode = files.joinPath(files.documentsDirectory(), "countUp.json")
-
-// Read existing data
+const pathToCode = files.joinPath(files.documentsDirectory(), "dateHourglass.json")
 let content = files.readString(pathToCode);
-
+if (content == null)
+  content = "[]";
+/*
+if (files.fileExists(pathToCode)) {
+}
+else
+  let content = "";
+*/
 // Fill data[] with file's content & parse it into an array
 data = JSON.parse(content);
 
@@ -85,8 +89,60 @@ loadTable();
 // ========================
 // Functions
 // ========================
-// Switch id of entries
-function swap(entryId,targetId) {
+// Switch id of entries for reorganize
+function moveCount(direction,targetId) {
+  // Convert string to number
+  targetId = parseInt(targetId);
+
+  if (direction == "up") {
+    // If at top
+    if (targetId == 0) {
+      let alert = new Alert();
+      alert.title = "Error";
+      alert.addAction("OK");
+      alert.presentAlert();
+      return;
+    }
+    let temp = data[targetId-1];
+    data[targetId-1] = data[targetId];
+    data[targetId] = temp;
+    // Reorganize id
+    for (var i in data) {
+      data[i].id = i;
+    }
+    // Save changes to file & reloadTable
+    myJSON = JSON.stringify(data);
+    files.writeString(pathToCode, myJSON);
+    table.removeAllRows();
+    loadTable();
+    table.reload();
+  }
+  else if (direction == "down") {
+    log("hi");
+    // If at bottom
+    if (targetId == data.length-1) {
+      let alert = new Alert();
+      alert.title = "Error";
+      alert.addAction("OK");
+      alert.presentAlert();
+      return;
+    }
+    let temp = data[targetId+1];
+    data[targetId+1] = data[targetId];
+    data[targetId] = temp;
+    // Reorganize id
+    for (var i in data) {
+      data[i].id = i;
+    }
+    log(data);
+
+    // Save changes to file & reloadTable
+    myJSON = JSON.stringify(data);
+    files.writeString(pathToCode, myJSON);
+    table.removeAllRows();
+    loadTable();
+    table.reload();
+  }
 
 }
 // Create new table and add create button and header to the table
@@ -100,7 +156,7 @@ async function loadTable() {
   row.onSelect = async () => {
     // Create count item object
     let count = await createCount();
-    // Dsiplay count item to table
+    // Display count item to table
     addToTable(count);
     if (daysAgo < 0) {
       alert = new Alert()
@@ -164,11 +220,10 @@ async function createCount() {
   if (isNumeric(dateExpire)) {
     // Update id number
     id++;
-    // Ask for a square image
-    let dirs = await DocumentPicker.openFile(["public.folder"])
-    log(dirs);
+    // Ask for an image
+    let img_dir = await DocumentPicker.openFile(["public.folder"]);
     // Create item object
-    obj = {"id": "" + id + "", "name":input,"date":datePick,"expire":dateExpire};
+    obj = {"id": "" + id + "", "name":input,"date":datePick,"expire":dateExpire,"img":img_dir};
     addToData(obj);
   }
   else{
@@ -189,6 +244,7 @@ function addToData(item) {
         "name": item.name,
         "date": item.date,
         "expire": item.expire,
+        "img": item.img
       };
   data.push(toAdd);
   // Loop through and reassign id of data[] elements
@@ -211,22 +267,29 @@ function addToTable(item) {
     //alert.message = "";
     alert.addAction("Reset");
     alert.addAction("Delete");
+    alert.addAction("Move Up");
+    alert.addAction("Move Down");
     alert.addAction("Cancel");
     let respond = await alert.presentAlert();
-    if (respond == "0")
+    if (respond == "0") // Reset
       resetCount(item.id);
-    else if (respond == "1")
+    else if (respond == "1") // Delete
       deleteCount(item.id);
+    else if (respond == "2") // Move up
+      moveCount("up", item.id);
+    else if (respond == "3") // Move down
+      moveCount("down", item.id);
     else
-      return
-
+      return;
    }
   // get days ago
   let daysAgo = getDaysAgo(item.date);
   // Display hourglass entry
   let cell;
-  //let files = FileManager.iCloud();
-  let image = files.readImage(files.documentsDirectory() + "/toothbrush.png")
+  // get image
+  //let image = files.readImage(files.documentsDirectory() + "/images/toothbrush.png")
+  let image = files.readImage(item.img);
+
   cell = row.addImage(image);
   cell = row.addText(item.name + "");
   cell = row.addText(daysAgo + "/" + item.expire);
@@ -372,7 +435,7 @@ function loadWidget() {
     */
     // Image symbol
     let files = FileManager.iCloud();
-    let image = files.readImage(files.documentsDirectory() + "/toothbrush.png")
+    let image = files.readImage(files.documentsDirectory() + "/images/toothbrush.png")
     //let image = files.readImage(files.documentsDirectory() + "/IMG_8546.jpg")
     let img_r = new Rect(point[i].x-35,point[i].y-35,70,70);
     canvas.drawImageInRect(image,img_r);
