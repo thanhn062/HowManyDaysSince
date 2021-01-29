@@ -9,7 +9,6 @@
 // Open -> show menu -> Widget Display Setting
 //                      Widget Preview
 //                      Edit Counters
-// DAY COUNT SCRIPT
 const moment = importModule("lib/moment");
 // =========================
 // WIDGET
@@ -20,7 +19,7 @@ const canvTextSize = 40;
 const canvas = new DrawContext();
 canvas.opaque = false
 // widget appearance
-const widgetBGColor = new Color('000'); //Widget background color
+const widgetBGColor = new Color('222222'); //Widget background color
 const circleTextColor = new Color('#fff'); //Widget text color
 // Progres circle colors
 const bgCircleColorFasting = new Color('00382c')
@@ -41,13 +40,20 @@ let widget = new ListWidget();
 widget.setPadding(0, 5, 1, 0);
 loadWidget();
 
-//widget.backgroundColor = widgetBGColor
+widget.backgroundColor = widgetBGColor
 widget.addImage(canvas.getImage())
 Script.setWidget(widget);
 widget.presentSmall();
 Script.complete();
 
 // =========================
+/*let alert = new Alert();
+alert.addAction("About");
+alert.addAction("Widget Preview");
+alert.addAction("Widget Setting");
+alert.addAction("Edit Date Hourglass");
+alert.presentAlert();*/
+
 // declare global vars
 let data = [], id = 0;
 
@@ -75,7 +81,6 @@ table.showSeparators = true;
 
 // Show table
 loadTable();
-log (argsParam);
 // ========================
 // Functions
 // ========================
@@ -118,7 +123,7 @@ async function loadTable() {
   // Loop through data array
   for (var i in data) {
     // Update id number from existing data
-    id++;
+    //id++;
     let daysAgo = await getDaysAgo(data[i].date);
     addToTable(data[i]);
   }
@@ -130,7 +135,7 @@ async function createCount() {
   let prompt = new Alert();
   // Prompt to get count's name
   prompt.title = "Item Title";
-  prompt.message = "Limit 30 characters\n And then pick the start date for this count up";
+  prompt.message = "Limit 30 characters\n";
   prompt.addTextField();
   prompt.addAction("Ok");
   await prompt.presentAlert();
@@ -145,7 +150,7 @@ async function createCount() {
   // Prompt to get expire date
   prompt = new Alert();
   prompt.title = "Expiration Date";
-  prompt.message = "Pick how many days for this count up to expire\n---\nThe counter will still count when it gets past the expiration date\n\nThis is mainly for visual display of the counter and showing your count progression";
+  prompt.message = "Pick the sand amount (in days) for this hourglass\n---\nThe hourglass will still count past the expiration date\n\nThis is mainly for visual display of the hourglass to showing your count progression";
   prompt.addAction("Ok");
   prompt.addTextField();
   await prompt.presentAlert();
@@ -220,7 +225,7 @@ function resetCount(id) {
   // Reformat Date object to string for storing
   today = formatDate(today);
   // Reset count date to today
-  data[id-1].date = today;
+  data[id].date = today;
 
   // update changes to file
   myJSON = JSON.stringify(data);
@@ -232,7 +237,16 @@ function resetCount(id) {
   table.reload();
 }
 // delete count from entry by id
-function deleteCount(id) {
+async function deleteCount(id) {
+  // Confirm
+  let alert = new Alert();
+  alert.title = "Confirmation";
+  alert.message = "Are you sure ?";
+  alert.addAction("Yes");
+  alert.addAction("No");
+  let respond = await alert.presentAlert();
+  if (respond == "1")
+    return;
   // remove item with id matched with id from data[]
   data = data.filter(item => item.id !== id);
   // Loop through and reassign id of data[] elements
