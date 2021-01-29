@@ -3,12 +3,7 @@
 // icon-color: deep-green; icon-glyph: hourglass-half;
 
 // Title: Date Hourglass
-// Habit Hourglass
-// Can be use as expiration date check
-// ===== TODO ========
-// Open -> show menu -> Widget Display Setting
-//                      Widget Preview
-//                      Edit Counters
+// todo color code , red, orange, green, ios tone
 const moment = importModule("lib/moment");
 // =========================
 // WIDGET
@@ -38,21 +33,6 @@ canvas.respectScreenScale = true;
 // create widget object
 let widget = new ListWidget();
 widget.setPadding(0, 5, 1, 0);
-loadWidget();
-
-widget.backgroundColor = widgetBGColor
-widget.addImage(canvas.getImage())
-Script.setWidget(widget);
-widget.presentSmall();
-Script.complete();
-
-// =========================
-/*let alert = new Alert();
-alert.addAction("About");
-alert.addAction("Widget Preview");
-alert.addAction("Widget Setting");
-alert.addAction("Edit Date Hourglass");
-alert.presentAlert();*/
 
 // declare global vars
 var data = [], id = -1;
@@ -69,12 +49,7 @@ const pathToCode = files.joinPath(files.documentsDirectory(), "dateHourglass.jso
 let content = files.readString(pathToCode);
 if (content == null)
   content = "[]";
-/*
-if (files.fileExists(pathToCode)) {
-}
-else
-  let content = "";
-*/
+
 // Fill data[] with file's content & parse it into an array
 data = JSON.parse(content);
 
@@ -83,6 +58,13 @@ let table = new UITable();
 let row, cell;
 let dismissable = false && config.runsInApp;
 table.showSeparators = true;
+// load widget
+loadWidget();
+
+widget.backgroundColor = widgetBGColor
+widget.addImage(canvas.getImage())
+Script.setWidget(widget);
+Script.complete();
 
 // Show table
 loadTable();
@@ -147,6 +129,15 @@ function moveCount(direction,targetId) {
 }
 // Create new table and add create button and header to the table
 async function loadTable() {
+  // View Widget Preview
+  row = new UITableRow();
+  row.height = 50;
+  row.dismissOnSelect = dismissable;
+  row.onSelect = () => {
+    widget.presentSmall();
+  }
+  row.addText("View Widget Preview").centerAligned();
+  table.addRow(row);
   // Create count button
   // +
   row = new UITableRow();
@@ -173,7 +164,7 @@ async function loadTable() {
   // Create table header
   row = new UITableRow();
   row.isHeader = true;
-  row.height = 80;
+  row.height = 70;
   cell = row.addText("Icon");
   cell = row.addText("Name");
   cell = row.addText("Days");
@@ -395,7 +386,8 @@ function loadWidget() {
   outerD = 120;
 
   // Create 4 circles on 4 quadrants -----------
-  for (var i = 0; i < 4; i++) {
+  for (var i = 0; i < data.length; i++) {
+    log(data[i]);
     quad_X = point[i].x - outerD/2;
     quad_Y = point[i].y - outerD/2;
     // Outer circle quadrant 1
@@ -403,9 +395,14 @@ function loadWidget() {
     canvas.setStrokeColor(bgCircleColor);
     canvas.setLineWidth(canvWidth);
     canvas.strokeEllipse(circle);
-    degree = 80;
     // Inner progress circle quadrant 1
     canvas.setFillColor(fbCircleColor);
+    // get daysAgo
+    let daysAgo = getDaysAgo(data[i].date);
+    // find percentage of daysAgo/expire
+    let percentage = Math.ceil(daysAgo*100/data[i].expire);
+    // Convert percentage into degree
+    let degree = percentage*360/100;
     for (t = 0; t < degree; t++) {
       prog_x = point[i].x + (60) * sinDeg(t) - canvWidth / 2;
       prog_y = point[i].y - (60) * cosDeg(t) - canvWidth / 2;
@@ -435,7 +432,8 @@ function loadWidget() {
     */
     // Image symbol
     let files = FileManager.iCloud();
-    let image = files.readImage(files.documentsDirectory() + "/images/toothbrush.png")
+    let image = files.readImage(data[i].img);
+    //let image = files.readImage(files.documentsDirectory() + "/images/toothbrush.png")
     //let image = files.readImage(files.documentsDirectory() + "/IMG_8546.jpg")
     let img_r = new Rect(point[i].x-35,point[i].y-35,70,70);
     canvas.drawImageInRect(image,img_r);
@@ -445,7 +443,10 @@ function loadWidget() {
     canvas.setTextColor(txtColor);
     canvas.setFont(Font.boldSystemFont(18));
     canvas.setTextAlignedCenter();
-    canvas.drawTextInRect("1/90", txtRect);
+    canvas.drawTextInRect(daysAgo + "/" + data[i].expire, txtRect);
+    // Only load first 4 of the hourglass list
+    if (i >= 4)
+      break;
   }
 }
 function sinDeg(deg) {
