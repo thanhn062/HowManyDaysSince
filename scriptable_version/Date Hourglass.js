@@ -368,7 +368,9 @@ function loadWidget(preview = 0) {
   // create widget object
   let widget = new ListWidget();
   widget.setPadding(0, 5, 1, 0);
+  let nextRefresh = Date.now() + 1000*30; // add 30 second to now
 
+  widget.refreshAfterDate = new Date(nextRefresh);
   // Get 4 center point of 4 quadrants
   let point = [];
   point[0] = new Point(canvSize / 4, canvSize / 4);
@@ -384,6 +386,9 @@ function loadWidget(preview = 0) {
 
   // Create 4 circles on 4 quadrants -----------
   for (var i = 0; i < data.length; i++) {
+    // Only load first 4 of the hourglass list
+    if (i >= 4)
+      break;
     log(data[i]);
     quad_X = point[i].x - outerD/2;
     quad_Y = point[i].y - outerD/2;
@@ -441,9 +446,6 @@ function loadWidget(preview = 0) {
     canvas.setFont(Font.boldSystemFont(18));
     canvas.setTextAlignedCenter();
     canvas.drawTextInRect(daysAgo + "/" + data[i].expire, txtRect);
-    // Only load first 4 of the hourglass list
-    if (i >= 4)
-      break;
   }
   widget.backgroundColor = widgetBGColor
   widget.addImage(canvas.getImage())
