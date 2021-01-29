@@ -11,8 +11,7 @@ const moment = importModule("lib/moment");
 // declare canvas object and canvas setting
 const canvSize = 282;
 const canvTextSize = 40;
-const canvas = new DrawContext();
-canvas.opaque = false
+
 // widget appearance
 const widgetBGColor = new Color('222222'); //Widget background color
 const circleTextColor = new Color('#fff'); //Widget text color
@@ -25,14 +24,6 @@ const progressCircleColorFasting = new Color('FFD723')
 const argsParam = args.widgetParameter
 const canvWidth = 15; // circle thickness
 const canvRadius = 120; // circle radius
-
-// Set canvas size & setting
-canvas.size = new Size(canvSize, canvSize);
-canvas.respectScreenScale = true;
-
-// create widget object
-let widget = new ListWidget();
-widget.setPadding(0, 5, 1, 0);
 
 // declare global vars
 var data = [], id = -1;
@@ -58,13 +49,9 @@ let table = new UITable();
 let row, cell;
 let dismissable = false && config.runsInApp;
 table.showSeparators = true;
+
 // load widget
 loadWidget();
-
-widget.backgroundColor = widgetBGColor
-widget.addImage(canvas.getImage())
-Script.setWidget(widget);
-Script.complete();
 
 // Show table
 loadTable();
@@ -134,7 +121,7 @@ async function loadTable() {
   row.height = 50;
   row.dismissOnSelect = dismissable;
   row.onSelect = () => {
-    widget.presentSmall();
+    loadWidget(1);
   }
   row.addText("View Widget Preview").centerAligned();
   table.addRow(row);
@@ -371,7 +358,17 @@ function isNumeric(n) {
 // Widget functions
 // =======================
 // Load basic display of count up widget
-function loadWidget() {
+function loadWidget(preview = 0) {
+  // Set canvas size & setting
+  const canvas = new DrawContext();
+  canvas.opaque = false
+  canvas.size = new Size(canvSize, canvSize);
+  canvas.respectScreenScale = true;
+
+  // create widget object
+  let widget = new ListWidget();
+  widget.setPadding(0, 5, 1, 0);
+
   // Get 4 center point of 4 quadrants
   let point = [];
   point[0] = new Point(canvSize / 4, canvSize / 4);
@@ -448,6 +445,12 @@ function loadWidget() {
     if (i >= 4)
       break;
   }
+  widget.backgroundColor = widgetBGColor
+  widget.addImage(canvas.getImage())
+  Script.setWidget(widget);
+  Script.complete();
+  if (preview == 1)
+    widget.presentSmall();
 }
 function sinDeg(deg) {
     return Math.sin((deg * Math.PI) / 180);
