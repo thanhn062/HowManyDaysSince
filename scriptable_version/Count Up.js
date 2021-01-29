@@ -1,6 +1,6 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
-// icon-color: deep-green; icon-glyph: calendar-alt;
+// icon-color: deep-green; icon-glyph: hourglass-half;
 
 // Title: Date Hourglass
 // Habit Hourglass
@@ -9,6 +9,7 @@
 // Open -> show menu -> Widget Display Setting
 //                      Widget Preview
 //                      Edit Counters
+// BUg, delete need to be use twice before deleteing mose likely have something to do with id
 const moment = importModule("lib/moment");
 // =========================
 // WIDGET
@@ -55,7 +56,7 @@ alert.addAction("Edit Date Hourglass");
 alert.presentAlert();*/
 
 // declare global vars
-var data = [], id = 0;
+var data = [], id = -1;
 
 // Determine if the user is using iCloud.
 let files = FileManager.local()
@@ -84,7 +85,10 @@ loadTable();
 // ========================
 // Functions
 // ========================
+// Switch id of entries
+function swap(entryId,targetId) {
 
+}
 // Create new table and add create button and header to the table
 async function loadTable() {
   // Create count button
@@ -114,18 +118,18 @@ async function loadTable() {
   row = new UITableRow();
   row.isHeader = true;
   row.height = 80;
+  cell = row.addText("Icon");
   cell = row.addText("Name");
-  cell = row.addText("Day(s)");
-  cell = row.addText("Expire in");
+  cell = row.addText("Days");
   cell.centerAligned();
   table.addRow(row);
   // load existing items from countUp.js
   // Loop through data array
-  id = 0;
+  id = -1;
   for (var i in data) {
     // Update id number from existing data
     id++;
-    let daysAgo = await getDaysAgo(data[i].date);
+    //let daysAgo = await getDaysAgo(data[i].date);
     addToTable(data[i]);
   }
   // Show table
@@ -151,7 +155,7 @@ async function createCount() {
   // Prompt to get expire date
   prompt = new Alert();
   prompt.title = "Expiration Date";
-  prompt.message = "Pick the sand amount (in days) for this hourglass\n---\nThe hourglass will still count past the expiration date\n\nThis is mainly for visual display of the hourglass to showing your count progression";
+  prompt.message = "Pick the sand amount (in days) for this hourglass";
   prompt.addAction("Ok");
   prompt.addTextField();
   await prompt.presentAlert();
@@ -160,6 +164,9 @@ async function createCount() {
   if (isNumeric(dateExpire)) {
     // Update id number
     id++;
+    // Ask for a square image
+    let dirs = await DocumentPicker.openFile(["public.folder"])
+    log(dirs);
     // Create item object
     obj = {"id": "" + id + "", "name":input,"date":datePick,"expire":dateExpire};
     addToData(obj);
@@ -186,7 +193,6 @@ function addToData(item) {
   data.push(toAdd);
   // Loop through and reassign id of data[] elements
   for (var i in data) {
-    log(i);
     data[i].id = i;
   }
   // Write to file
@@ -207,7 +213,6 @@ function addToTable(item) {
     alert.addAction("Delete");
     alert.addAction("Cancel");
     let respond = await alert.presentAlert();
-    log(data);
     if (respond == "0")
       resetCount(item.id);
     else if (respond == "1")
@@ -218,24 +223,36 @@ function addToTable(item) {
    }
   // get days ago
   let daysAgo = getDaysAgo(item.date);
+  // Display hourglass entry
   let cell;
+  //let files = FileManager.iCloud();
+  let image = files.readImage(files.documentsDirectory() + "/toothbrush.png")
+  cell = row.addImage(image);
   cell = row.addText(item.name + "");
-  cell = row.addText(daysAgo + "");
-  cell = row.addText((item.expire-daysAgo) + "");
+  cell = row.addText(daysAgo + "/" + item.expire);
   cell.centerAligned();
   table.addRow(row);
   table.reload();
 }
 // reset count from entry by id
-function resetCount(id) {
+async function resetCount(id) {
+  // Confirm
+  let alert = new Alert();
+  alert.title = "Confirmation";
+  alert.message = "Are you sure ?";
+  alert.addAction("Yes");
+  alert.addAction("No");
+  let respond = await alert.presentAlert();
+  if (respond == "1")
+    return;
   // get today Date object
   let today = moment().startOf('day');
   // Reformat Date object to string for storing
   today = formatDate(today);
   // Reset count date to today
-  data[id-1].date = today;
+  data[id].date = today;
   // update changes to file
-  myJSON = JSON.stringify(data);
+  myJSON = await JSON.stringify(data);
   files.writeString(pathToCode, myJSON);
   // remove all from table
   table.removeAllRows()
@@ -255,13 +272,13 @@ async function deleteCount(id) {
   if (respond == "1")
     return;
   // remove item with id matched with id from data[]
-  data = data.filter(item => item.id !== id);
+  data = await data.filter(item => item.id !== id);
   // Loop through and reassign id of data[] elements
   for (var i in data) {
-    data[i].id = i;
+    data[i].id = await i;
   }
   // update changes to file
-  myJSON = JSON.stringify(data);
+  myJSON = await JSON.stringify(data);
   files.writeString(pathToCode, myJSON);
   // remove all from table
   table.removeAllRows()
@@ -368,62 +385,9 @@ function loadWidget() {
     canvas.drawTextInRect("1/90", txtRect);
   }
 }
-/*
-function makeCircle(radiusOffset, bgCircleColor, fgCircleColor, degree, txtColor) {
-    let ctr = new Point(canvSize / 2, canvSize / 2)
-    // Outer circle
-    CoordOffset = -90
-    RadiusOffset = -90
-    bgx = ctr.x - (canvRadius - radiusOffset) + 16;
-    bgy = ctr.y - (canvRadius - radiusOffset) + 20;
-    bgd = 2 * (canvRadius - radiusOffset);
-    bgr = new Rect(
-        bgx + CoordOffset,
-        bgy + CoordOffset + 20,
-        bgd,
-        bgd
-    );
-
-    canvas.setStrokeColor(bgCircleColor);
-    canvas.setLineWidth(canvWidth);
-    canvas.strokeEllipse(bgr);
-
-    // Inner circle
-    canvas.setFillColor(fgCircleColor);
-    for (t = 0; t < degree; t++) {
-        rect_x = ctr.x + (canvRadius - radiusOffset) * sinDeg(t) - canvWidth / 2;
-        rect_y = ctr.y - (canvRadius - radiusOffset) * cosDeg(t) - canvWidth / 2;
-        rect_r = new Rect(
-            rect_x - 72,
-            rect_y - 50,
-            canvWidth,
-            canvWidth
-        );
-        canvas.fillEllipse(rect_r);
-    }
-}*/
-
-function drawText(txt, txtColor, txtOffset, fontSize) {
-    const txtRect = new Rect(
-        canvTextSize / 2 + 25,
-        txtOffset - canvTextSize / 2 - 65,
-        canvSize,
-        canvTextSize
-    );
-    canvas.setTextColor(txtColor);
-    canvas.setFont(Font.boldSystemFont(fontSize));
-    canvas.setTextAlignedLeft()
-    canvas.drawTextInRect(txt, txtRect)
-}
-
 function sinDeg(deg) {
     return Math.sin((deg * Math.PI) / 180);
 }
-
 function cosDeg(deg) {
     return Math.cos((deg * Math.PI) / 180);
-}
-
-function pad(num) {
-    return ("0" + parseInt(num)).substr(-2);
 }
