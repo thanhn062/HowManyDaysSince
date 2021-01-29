@@ -4,6 +4,9 @@
 
 // Title: Date Hourglass
 // todo color code , red, orange, green, ios tone
+// notification at 7 am
+// cell of progress background color change based on percentage
+
 const moment = importModule("lib/moment");
 // =========================
 // WIDGET
@@ -58,8 +61,176 @@ loadTable();
 // ========================
 // Functions
 // ========================
-// Switch id of entries for reorganize
-function moveCount(direction,targetId) {
+
+// create new table and add button + and headers to the table
+async function loadTable() {
+  // View Widget Preview
+  row = new UITableRow();
+  row.height = 50;
+  row.dismissOnSelect = dismissable;
+  row.onSelect = () => {
+    loadWidget(1);
+  }
+  row.addText("View Widget Preview").centerAligned();
+  table.addRow(row);
+  // Create count button
+  // +
+  row = new UITableRow();
+  row.isHeader = true;
+  row.height = 80;
+  row.dismissOnSelect = dismissable;
+  row.onSelect = async () => {
+    // Create count item object
+    let count = await createEntry();
+    // Display count item to table
+    addToTable(count);
+    if (daysAgo < 0) {
+      alert = new Alert()
+      alert.title = "Error";
+      alert.addAction("Ok");
+      alert.message = "You can't pick further than today.";
+      await alert.presentAlert();
+      return;
+    }
+  }
+  row.addText("+").centerAligned();
+  table.addRow(row);
+
+  // Create table header
+  row = new UITableRow();
+  row.isHeader = true;
+  row.height = 70;
+  cell = row.addText("Icon");
+  cell = row.addText("Name");
+  cell = row.addText("Days");
+  cell.centerAligned();
+  table.addRow(row);
+  // load existing items from countUp.js
+  // Loop through data array
+  id = -1;
+  for (var i in data) {
+    // Update id number from existing data
+    id++;
+    //let daysAgo = await getDaysAgo(data[i].date);
+    addToTable(data[i]);
+  }
+  // Show table
+  table.present();
+}
+// create hourglass Object
+async function createEntry() {
+  let prompt = new Alert();
+  // Prompt to get count's name
+  prompt.title = "Item Title";
+  prompt.message = "Limit 30 characters\n";
+  prompt.addTextField();
+  prompt.addAction("Ok");
+  await prompt.presentAlert();
+  input = prompt.textFieldValue();
+  // Data validation
+  if (!input || input === "")
+    return;
+  // Pick date
+  let date = new DatePicker();
+  let datePick = await date.pickDate();
+  datePick = formatDate(datePick);
+  // Prompt to get expire date
+  prompt = new Alert();
+  prompt.title = "Expiration Date";
+  prompt.message = "Pick the sand amount (in days) for this hourglass";
+  prompt.addAction("Ok");
+  prompt.addTextField();
+  await prompt.presentAlert();
+  dateExpire = prompt.textFieldValue();
+  // Data validation
+  if (isNumeric(dateExpire)) {
+    // Update id number
+    id++;
+    // Ask for an image
+    let img_dir = await DocumentPicker.openFile(["public.folder"]);
+    // Create item object
+    obj = {"id": "" + id + "", "name":input,"date":datePick,"expire":dateExpire,"img":img_dir};
+    toAdd =
+        {
+          "id": "" + id + "",
+          "name": obj.name,
+          "date": obj.date,
+          "expire": obj.expire,
+          "img": obj.img
+        };
+    data.push(toAdd);
+    // Loop through and reassign id of data[] elements
+    for (var i in data) {
+      data[i].id = i;
+    }
+    // Write to file
+    myJSON = JSON.stringify(data);
+    files.writeString(pathToCode, myJSON);
+  }
+  else{
+    prompt = new Alert();
+    prompt.title = "Error";
+    prompt.message = "Expiration date need to be a number";
+    prompt.addAction("Ok");
+    await prompt.presentAlert();
+    return;
+  }
+  return obj;
+}
+// reset count from entry by id
+async function resetEntry(id) {
+  // Confirm
+  let alert = new Alert();
+  alert.title = "Confirmation";
+  alert.message = "Are you sure ?";
+  alert.addAction("Yes");
+  alert.addAction("No");
+  let respond = await alert.presentAlert();
+  if (respond == "1")
+    return;
+  // get today Date object
+  let today = moment().startOf('day');
+  // Reformat Date object to string for storing
+  today = formatDate(today);
+  // Reset count date to today
+  data[id].date = today;
+  // update changes to file
+  myJSON = await JSON.stringify(data);
+  files.writeString(pathToCode, myJSON);
+  // remove all from table
+  table.removeAllRows()
+  // recreate the table
+  loadTable(data);
+  table.reload();
+}
+// delete count from entry by id
+async function deleteEntry(id) {
+  // Confirm
+  let alert = new Alert();
+  alert.title = "Confirmation";
+  alert.message = "Are you sure ?";
+  alert.addAction("Yes");
+  alert.addAction("No");
+  let respond = await alert.presentAlert();
+  if (respond == "1")
+    return;
+  // remove item with id matched with id from data[]
+  data = await data.filter(item => item.id !== id);
+  // Loop through and reassign id of data[] elements
+  for (var i in data) {
+    data[i].id = await i;
+  }
+  // update changes to file
+  myJSON = await JSON.stringify(data);
+  files.writeString(pathToCode, myJSON);
+  // remove all from table
+  table.removeAllRows()
+  // recreate the table
+  loadTable(data);
+  table.reload();
+}
+// move entries up and down
+function moveEntry(direction,targetId) {
   // Convert string to number
   targetId = parseInt(targetId);
 
@@ -114,126 +285,7 @@ function moveCount(direction,targetId) {
   }
 
 }
-// Create new table and add create button and header to the table
-async function loadTable() {
-  // View Widget Preview
-  row = new UITableRow();
-  row.height = 50;
-  row.dismissOnSelect = dismissable;
-  row.onSelect = () => {
-    loadWidget(1);
-  }
-  row.addText("View Widget Preview").centerAligned();
-  table.addRow(row);
-  // Create count button
-  // +
-  row = new UITableRow();
-  row.isHeader = true;
-  row.height = 80;
-  row.dismissOnSelect = dismissable;
-  row.onSelect = async () => {
-    // Create count item object
-    let count = await createCount();
-    // Display count item to table
-    addToTable(count);
-    if (daysAgo < 0) {
-      alert = new Alert()
-      alert.title = "Error";
-      alert.addAction("Ok");
-      alert.message = "You can't pick further than today.";
-      await alert.presentAlert();
-      return;
-    }
-  }
-  row.addText("+").centerAligned();
-  table.addRow(row);
-
-  // Create table header
-  row = new UITableRow();
-  row.isHeader = true;
-  row.height = 70;
-  cell = row.addText("Icon");
-  cell = row.addText("Name");
-  cell = row.addText("Days");
-  cell.centerAligned();
-  table.addRow(row);
-  // load existing items from countUp.js
-  // Loop through data array
-  id = -1;
-  for (var i in data) {
-    // Update id number from existing data
-    id++;
-    //let daysAgo = await getDaysAgo(data[i].date);
-    addToTable(data[i]);
-  }
-  // Show table
-  table.present();
-}
-// create Count Object
-async function createCount() {
-  let prompt = new Alert();
-  // Prompt to get count's name
-  prompt.title = "Item Title";
-  prompt.message = "Limit 30 characters\n";
-  prompt.addTextField();
-  prompt.addAction("Ok");
-  await prompt.presentAlert();
-  input = prompt.textFieldValue();
-  // Data validation
-  if (!input || input === "")
-    return;
-  // Pick date
-  let date = new DatePicker();
-  let datePick = await date.pickDate();
-  datePick = formatDate(datePick);
-  // Prompt to get expire date
-  prompt = new Alert();
-  prompt.title = "Expiration Date";
-  prompt.message = "Pick the sand amount (in days) for this hourglass";
-  prompt.addAction("Ok");
-  prompt.addTextField();
-  await prompt.presentAlert();
-  dateExpire = prompt.textFieldValue();
-  // Data validation
-  if (isNumeric(dateExpire)) {
-    // Update id number
-    id++;
-    // Ask for an image
-    let img_dir = await DocumentPicker.openFile(["public.folder"]);
-    // Create item object
-    obj = {"id": "" + id + "", "name":input,"date":datePick,"expire":dateExpire,"img":img_dir};
-    addToData(obj);
-  }
-  else{
-    prompt = new Alert();
-    prompt.title = "Error";
-    prompt.message = "Expiration date need to be a number";
-    prompt.addAction("Ok");
-    await prompt.presentAlert();
-    return;
-  }
-  return obj;
-}
-// add new entry object to data
-function addToData(item) {
-  toAdd =
-      {
-        "id": "" + id + "",
-        "name": item.name,
-        "date": item.date,
-        "expire": item.expire,
-        "img": item.img
-      };
-  data.push(toAdd);
-  // Loop through and reassign id of data[] elements
-  for (var i in data) {
-    data[i].id = i;
-  }
-  // Write to file
-  myJSON = JSON.stringify(data);
-  files.writeString(pathToCode, myJSON);
-}
-// add new entry object to table
+// add new entry to tabel & data
 function addToTable(item) {
   // Make new row
   let row = new UITableRow();
@@ -250,16 +302,16 @@ function addToTable(item) {
     alert.addAction("Cancel");
     let respond = await alert.presentAlert();
     if (respond == "0") // Reset
-      resetCount(item.id);
+    resetEntry(item.id);
     else if (respond == "1") // Delete
-      deleteCount(item.id);
+    deleteEntry(item.id);
     else if (respond == "2") // Move up
-      moveCount("up", item.id);
+    moveEntry("up", item.id);
     else if (respond == "3") // Move down
-      moveCount("down", item.id);
+    moveEntry("down", item.id);
     else
-      return;
-   }
+    return;
+  }
   // get days ago
   let daysAgo = getDaysAgo(item.date);
   // Display hourglass entry
@@ -275,58 +327,7 @@ function addToTable(item) {
   table.addRow(row);
   table.reload();
 }
-// reset count from entry by id
-async function resetCount(id) {
-  // Confirm
-  let alert = new Alert();
-  alert.title = "Confirmation";
-  alert.message = "Are you sure ?";
-  alert.addAction("Yes");
-  alert.addAction("No");
-  let respond = await alert.presentAlert();
-  if (respond == "1")
-    return;
-  // get today Date object
-  let today = moment().startOf('day');
-  // Reformat Date object to string for storing
-  today = formatDate(today);
-  // Reset count date to today
-  data[id].date = today;
-  // update changes to file
-  myJSON = await JSON.stringify(data);
-  files.writeString(pathToCode, myJSON);
-  // remove all from table
-  table.removeAllRows()
-  // recreate the table
-  loadTable(data);
-  table.reload();
-}
-// delete count from entry by id
-async function deleteCount(id) {
-  // Confirm
-  let alert = new Alert();
-  alert.title = "Confirmation";
-  alert.message = "Are you sure ?";
-  alert.addAction("Yes");
-  alert.addAction("No");
-  let respond = await alert.presentAlert();
-  if (respond == "1")
-    return;
-  // remove item with id matched with id from data[]
-  data = await data.filter(item => item.id !== id);
-  // Loop through and reassign id of data[] elements
-  for (var i in data) {
-    data[i].id = await i;
-  }
-  // update changes to file
-  myJSON = await JSON.stringify(data);
-  files.writeString(pathToCode, myJSON);
-  // remove all from table
-  table.removeAllRows()
-  // recreate the table
-  loadTable(data);
-  table.reload();
-}
+
 // calculate days ago from today given the date
 function getDaysAgo(date) {
   // Calculate how many days ago from today
@@ -353,6 +354,15 @@ function formatDate(date) {
 // https://stackoverflow.com/questions/9716468/pure-javascript-a-function-like-jquerys-isnumeric
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
+}
+// https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+function LightenDarkenColor(col, amt) {
+  var num = parseInt(col, 16);
+  var r = (num >> 16) + amt;
+  var b = ((num >> 8) & 0x00FF) + amt;
+  var g = (num & 0x0000FF) + amt;
+  var newColor = g | (b << 8) | (r << 16);
+  return newColor.toString(16);
 }
 // =======================
 // Widget functions
