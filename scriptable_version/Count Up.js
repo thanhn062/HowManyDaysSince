@@ -55,7 +55,7 @@ alert.addAction("Edit Date Hourglass");
 alert.presentAlert();*/
 
 // declare global vars
-let data = [], id = 0;
+var data = [], id = 0;
 
 // Determine if the user is using iCloud.
 let files = FileManager.local()
@@ -121,9 +121,10 @@ async function loadTable() {
   table.addRow(row);
   // load existing items from countUp.js
   // Loop through data array
+  id = 0;
   for (var i in data) {
     // Update id number from existing data
-    //id++;
+    id++;
     let daysAgo = await getDaysAgo(data[i].date);
     addToTable(data[i]);
   }
@@ -183,6 +184,11 @@ function addToData(item) {
         "expire": item.expire,
       };
   data.push(toAdd);
+  // Loop through and reassign id of data[] elements
+  for (var i in data) {
+    log(i);
+    data[i].id = i;
+  }
   // Write to file
   myJSON = JSON.stringify(data);
   files.writeString(pathToCode, myJSON);
@@ -201,6 +207,7 @@ function addToTable(item) {
     alert.addAction("Delete");
     alert.addAction("Cancel");
     let respond = await alert.presentAlert();
+    log(data);
     if (respond == "0")
       resetCount(item.id);
     else if (respond == "1")
@@ -221,12 +228,12 @@ function addToTable(item) {
 }
 // reset count from entry by id
 function resetCount(id) {
+  // get today Date object
   let today = moment().startOf('day');
   // Reformat Date object to string for storing
   today = formatDate(today);
   // Reset count date to today
-  data[id].date = today;
-
+  data[id-1].date = today;
   // update changes to file
   myJSON = JSON.stringify(data);
   files.writeString(pathToCode, myJSON);
@@ -251,7 +258,6 @@ async function deleteCount(id) {
   data = data.filter(item => item.id !== id);
   // Loop through and reassign id of data[] elements
   for (var i in data) {
-    log(i);
     data[i].id = i;
   }
   // update changes to file
@@ -301,7 +307,6 @@ function loadWidget() {
   point[1] = new Point(canvSize / 4*3, canvSize / 4);
   point[2] = new Point(canvSize / 4, canvSize / 4*3);
   point[3] = new Point(canvSize / 4*3, canvSize / 4*3);
-  log(point[0]);
   // Circle setting
   bgCircleColor = new Color('00382c');
   fbCircleColor = new Color('24ffd7');
