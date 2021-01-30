@@ -5,7 +5,7 @@
 // Title: Date Hourglass
 // cell of progress background color change based on percentage
 // change refresh rate to 12:01am everyday
-// Add destructive action
+
 const moment = importModule("lib/moment");
 // =========================
 // WIDGET
@@ -16,7 +16,6 @@ const canvTextSize = 40;
 
 // widget appearance
 const widgetBGColor = new Color('222222'); //Widget background color
-// const widgetBGColor = new Color('1a1a1c'); //Widget background color
 const circleTextColor = new Color('#fff'); //Widget text color
 // Progres circle colors
 // Background color
@@ -118,39 +117,7 @@ loadTable();
 // ========================
 // Functions
 // ========================
-// edit entry expiration date
-async function editEntry(id) {
-  let prompt = new Alert();
-  prompt.title = "Edit Expiration";
-  prompt.addTextField(data[id].expire);
-  prompt.addAction("Ok");
-  await prompt.presentAlert();
-  input = prompt.textFieldValue();
-  // Data validation
-  if (!input || input === "")
-    return;
-  // Data validation
-  if (isNumeric(input)) {
-    // Change data
-    data[id].expire = input;
 
-    // Write to file
-    myJSON = JSON.stringify(data);
-    files.writeString(pathToCode, myJSON);
-
-    // Display new data
-    table.removeAllRows();
-    loadTable();
-  }
-  else {
-    prompt = new Alert();
-    prompt.title = "Error";
-    prompt.message = "Expiration date need to be a number";
-    prompt.addAction("Ok");
-    await prompt.presentAlert();
-    return;
-  }
-}
 // create new table and add button + and headers to the table
 async function loadTable() {
   // View Widget Preview
@@ -196,10 +163,10 @@ async function loadTable() {
   table.addRow(row);
   // load existing items from countUp.js
   // Loop through data array
-  id = -1;
+  // id = -1;
   for (var i in data) {
     // Update id number from existing data
-    id++;
+    id == i;
     addToTable(data[i]);
   }
   // Show table
@@ -210,7 +177,7 @@ async function createEntry() {
   let prompt = new Alert();
   // Prompt to get count's name
   prompt.title = "Item Title";
-  prompt.message = "Limit 30 characters\n";
+  prompt.message = "Limit 30 characters";
   prompt.addTextField();
   prompt.addAction("Ok");
   await prompt.presentAlert();
@@ -232,8 +199,6 @@ async function createEntry() {
   dateExpire = prompt.textFieldValue();
   // Data validation
   if (isNumeric(dateExpire)) {
-    // Update id number
-    id++;
     // Ask for an image
     let img_dir = await DocumentPicker.openFile(["public.folder"]);
     // Create item object
@@ -265,13 +230,46 @@ async function createEntry() {
   }
   return obj;
 }
+// edit entry expiration date
+async function editEntry(id) {
+  let prompt = new Alert();
+  prompt.title = "Edit Expiration";
+  prompt.addTextField(data[id].expire);
+  prompt.addAction("Ok");
+  await prompt.presentAlert();
+  input = prompt.textFieldValue();
+  // Data validation
+  if (!input || input === "")
+  return;
+  // Data validation
+  if (isNumeric(input)) {
+    // Change data
+    data[id].expire = input;
+
+    // Write to file
+    myJSON = JSON.stringify(data);
+    files.writeString(pathToCode, myJSON);
+
+    // Display new data
+    table.removeAllRows();
+    loadTable();
+  }
+  else {
+    prompt = new Alert();
+    prompt.title = "Error";
+    prompt.message = "Expiration date need to be a number";
+    prompt.addAction("Ok");
+    await prompt.presentAlert();
+    return;
+  }
+}
 // reset count from entry by id
 async function resetEntry(id) {
   // Confirm
   let alert = new Alert();
   alert.title = "Confirmation";
   alert.message = "Are you sure ?";
-  alert.addAction("Yes");
+  alert.addDestructiveAction("Yes");
   alert.addAction("No");
   let respond = await alert.presentAlert();
   if (respond == "1")
@@ -297,7 +295,7 @@ async function deleteEntry(id) {
   let alert = new Alert();
   alert.title = "Confirmation";
   alert.message = "Are you sure ?";
-  alert.addAction("Yes");
+  alert.addDestructiveAction("Yes");
   alert.addAction("No");
   let respond = await alert.presentAlert();
   if (respond == "1")
@@ -376,11 +374,10 @@ function addToTable(item) {
   // Make new row
   let row = new UITableRow();
   row.height = 80;
+  row.
   row.dismissOnSelect = dismissable;
   row.onSelect = async () => {
     let alert = new Alert()
-    //alert.title = "Test";
-    //alert.message = "";
     alert.addAction("Reset");
     alert.addAction("Delete");
     alert.addAction("Edit Expiration");
@@ -403,15 +400,13 @@ function addToTable(item) {
   }
   // get days ago
   let daysAgo = getDaysAgo(item.date);
-  // Display hourglass entry
-  let cell;
   // get image
-  //let image = files.readImage(files.documentsDirectory() + "/images/toothbrush.png")
   let image = files.readImage(item.img);
 
+  let cell;
   cell = row.addImage(image);
-  cell = row.addText(item.name + "");
-  cell = row.addText(daysAgo + "/" + item.expire);
+  cell = row.addText(item.name);
+  cell = row.addText(daysAgo + "/" + item.expire, item.expire-daysAgo + " days left");
   cell.centerAligned();
   table.addRow(row);
   table.reload();
@@ -532,8 +527,6 @@ function loadWidget(preview = 0) {
     // Image symbol
     let files = FileManager.iCloud();
     let image = files.readImage(data[i].img);
-    //let image = files.readImage(files.documentsDirectory() + "/images/toothbrush.png")
-    //let image = files.readImage(files.documentsDirectory() + "/IMG_8546.jpg")
     let img_r = new Rect(point[i].x-35,point[i].y-35,70,70);
     canvas.drawImageInRect(image,img_r);
     // progress caption
