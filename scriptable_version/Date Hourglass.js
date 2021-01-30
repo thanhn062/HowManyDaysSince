@@ -57,11 +57,65 @@ let row, cell;
 let dismissable = false && config.runsInApp;
 table.showSeparators = true;
 
+// Notification
+notif = new Notification();
+notif.title = "Date Hourglass";
+notif.body = "";
+notif.openURL = URLScheme.forRunningScript();
+notif.scriptName = Script.name();
+notif.sound = "default";
+notif.threadIdentifier = Script.name();
+// Send notification when # of days left is less than or equal this number
+daysToAlert = 3;
+
+// get today date & time
+let today = new Date();
+let tmr = new Date(today);
+log(today);
+// Set up next notification check for tomorrow morning at 7 AM
+tmr.setDate(today.getDate()+1);
+tmr.setHours(7);
+tmr.setMinutes(0);
+tmr.setSeconds(0);
+notif.setTriggerDate(tmr);
+/*
+// Test
+tmr.setSeconds(today.getSeconds()+20);
+notif.setTriggerDate(tmr);
+*/
+log(tmr);
+
+// Remove all pending noti of this script before schedule so it wont pop up twice
+Notification.removePending(
+  (await Notification.allPending())
+    .filter(notif =>
+      notif.threadIdentifier === Script.name()
+    )
+    .map(notif => notif.identifier)
+);
+
+// find hourglass that have sand amount of 3 days or less
+for (var i in data) {
+  // get daysAgo
+  let daysAgo = getDaysAgo(data[i].date);
+  let daysLeft = data[i].expire-daysAgo;
+
+  if (daysAgo == data[i].expire)
+    notif.body = "The sands have ran out for ⌛" + data[i].name;
+  else if (daysLeft <= daysToAlert)
+    notif.body = "The sands are running out in " + daysLeft + " days for ⏳" + data[i].name + "!";
+  else if (daysAgo > data[i].expire) // ignore if hourglass ran out of sand
+    return;
+}
+if (notif.body !== "")
+  notif.schedule();
+
 // load widget
 loadWidget();
 
 // Show table
 loadTable();
+
 // ========================
 // Functions
 // ========================
@@ -261,7 +315,6 @@ function moveEntry(direction,targetId) {
     table.reload();
   }
   else if (direction == "down") {
-    log("hi");
     // If at bottom
     if (targetId == data.length-1) {
       let alert = new Alert();
@@ -277,7 +330,6 @@ function moveEntry(direction,targetId) {
     for (var i in data) {
       data[i].id = i;
     }
-    log(data);
 
     // Save changes to file & reloadTable
     myJSON = JSON.stringify(data);
