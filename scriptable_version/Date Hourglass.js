@@ -3,7 +3,6 @@
 // icon-color: deep-green; icon-glyph: hourglass-half;
 
 // Title: Date Hourglass
-// cell of progress background color change based on percentage
 // change refresh rate to 12:01am everyday
 
 const moment = importModule("lib/moment");
@@ -374,7 +373,6 @@ function addToTable(item) {
   // Make new row
   let row = new UITableRow();
   row.height = 80;
-  row.
   row.dismissOnSelect = dismissable;
   row.onSelect = async () => {
     let alert = new Alert()
@@ -406,7 +404,11 @@ function addToTable(item) {
   let cell;
   cell = row.addImage(image);
   cell = row.addText(item.name);
-  cell = row.addText(daysAgo + "/" + item.expire, item.expire-daysAgo + " days left");
+  let daysLeft = item.expire-daysAgo;
+  if (daysLeft > 0)
+    cell = row.addText(daysAgo + "/" + item.expire, daysLeft + " days left");
+  else
+    cell = row.addText(daysAgo + "/" + item.expire, "" + Math.abs(daysLeft) + " days past");
   cell.centerAligned();
   table.addRow(row);
   table.reload();
