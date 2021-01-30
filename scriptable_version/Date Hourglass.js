@@ -3,9 +3,9 @@
 // icon-color: deep-green; icon-glyph: hourglass-half;
 
 // Title: Date Hourglass
-// notification at 7 am
 // cell of progress background color change based on percentage
-
+// change refresh rate to 12:01am everyday
+// Add destructive action
 const moment = importModule("lib/moment");
 // =========================
 // WIDGET
@@ -112,14 +112,45 @@ if (notif.body !== "")
 
 // load widget
 loadWidget();
-
 // Show table
 loadTable();
 
 // ========================
 // Functions
 // ========================
+// edit entry expiration date
+async function editEntry(id) {
+  let prompt = new Alert();
+  prompt.title = "Edit Expiration";
+  prompt.addTextField(data[id].expire);
+  prompt.addAction("Ok");
+  await prompt.presentAlert();
+  input = prompt.textFieldValue();
+  // Data validation
+  if (!input || input === "")
+    return;
+  // Data validation
+  if (isNumeric(input)) {
+    // Change data
+    data[id].expire = input;
 
+    // Write to file
+    myJSON = JSON.stringify(data);
+    files.writeString(pathToCode, myJSON);
+
+    // Display new data
+    table.removeAllRows();
+    loadTable();
+  }
+  else {
+    prompt = new Alert();
+    prompt.title = "Error";
+    prompt.message = "Expiration date need to be a number";
+    prompt.addAction("Ok");
+    await prompt.presentAlert();
+    return;
+  }
+}
 // create new table and add button + and headers to the table
 async function loadTable() {
   // View Widget Preview
@@ -352,20 +383,23 @@ function addToTable(item) {
     //alert.message = "";
     alert.addAction("Reset");
     alert.addAction("Delete");
+    alert.addAction("Edit Expiration");
     alert.addAction("Move Up");
     alert.addAction("Move Down");
     alert.addAction("Cancel");
     let respond = await alert.presentAlert();
     if (respond == "0") // Reset
-    resetEntry(item.id);
+      resetEntry(item.id);
     else if (respond == "1") // Delete
-    deleteEntry(item.id);
-    else if (respond == "2") // Move up
-    moveEntry("up", item.id);
-    else if (respond == "3") // Move down
-    moveEntry("down", item.id);
+      deleteEntry(item.id);
+    else if (respond == "2") // Edit Expiration
+      editEntry(item.id);
+    else if (respond == "3") // Move up
+      moveEntry("up", item.id);
+    else if (respond == "4") // Move down
+      moveEntry("down", item.id);
     else
-    return;
+      return;
   }
   // get days ago
   let daysAgo = getDaysAgo(item.date);
