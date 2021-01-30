@@ -3,7 +3,6 @@
 // icon-color: deep-green; icon-glyph: hourglass-half;
 
 // Title: Date Hourglass
-// todo color code , red, orange, green, ios tone
 // notification at 7 am
 // cell of progress background color change based on percentage
 
@@ -17,19 +16,24 @@ const canvTextSize = 40;
 
 // widget appearance
 const widgetBGColor = new Color('222222'); //Widget background color
+// const widgetBGColor = new Color('1a1a1c'); //Widget background color
 const circleTextColor = new Color('#fff'); //Widget text color
 // Progres circle colors
-const bgCircleColorFasting = new Color('00382c')
-const bgCircleColoreatingEnd = new Color('382e00') // bg circle color, full circle 382e00
-const progressCircleColoreatingEnd = new Color('24ffd7')
-const progressCircleColorFasting = new Color('FFD723')
+// Background color
+bgCircleColor = new Color('48484A');
+// Foreground color
+// Green
+fgCircleColor_low = new Color('30D158');
+// Orange ( if > 70% )
+fgCircleColor_medium = new Color('FF9F0A');
+// Red ( if > 90% )
+fgCircleColor_high = new Color('FF453A');
 
-const argsParam = args.widgetParameter
 const canvWidth = 15; // circle thickness
-const canvRadius = 120; // circle radius
+// ==========================
 
 // declare global vars
-var data = [], id = -1;
+var data = [], id = -1, fileName = "dateList_1.json";
 
 // Determine if the user is using iCloud.
 let files = FileManager.local()
@@ -39,7 +43,7 @@ const iCloudInUse = files.isFileStoredIniCloud(module.filename)
 files = iCloudInUse ? FileManager.iCloud() : files
 
 // Set path for data file
-const pathToCode = files.joinPath(files.documentsDirectory(), "dateHourglass.json")
+const pathToCode = files.joinPath(files.documentsDirectory(), fileName)
 let content = files.readString(pathToCode);
 if (content == null)
   content = "[]";
@@ -111,7 +115,6 @@ async function loadTable() {
   for (var i in data) {
     // Update id number from existing data
     id++;
-    //let daysAgo = await getDaysAgo(data[i].date);
     addToTable(data[i]);
   }
   // Show table
@@ -355,15 +358,6 @@ function formatDate(date) {
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
-// https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
-function LightenDarkenColor(col, amt) {
-  var num = parseInt(col, 16);
-  var r = (num >> 16) + amt;
-  var b = ((num >> 8) & 0x00FF) + amt;
-  var g = (num & 0x0000FF) + amt;
-  var newColor = g | (b << 8) | (r << 16);
-  return newColor.toString(16);
-}
 // =======================
 // Widget functions
 // =======================
@@ -377,19 +371,17 @@ function loadWidget(preview = 0) {
 
   // create widget object
   let widget = new ListWidget();
-  widget.setPadding(0, 5, 1, 0);
-  let nextRefresh = Date.now() + 1000*30; // add 30 second to now
-
+  widget.setPadding(0, 8, 1, 0);
+  // Set refresh rate
+  let nextRefresh = Date.now() + 1000*60; // add 60 second to now
   widget.refreshAfterDate = new Date(nextRefresh);
+
   // Get 4 center point of 4 quadrants
   let point = [];
   point[0] = new Point(canvSize / 4, canvSize / 4);
   point[1] = new Point(canvSize / 4*3, canvSize / 4);
   point[2] = new Point(canvSize / 4, canvSize / 4*3);
   point[3] = new Point(canvSize / 4*3, canvSize / 4*3);
-  // Circle setting
-  bgCircleColor = new Color('00382c');
-  fbCircleColor = new Color('24ffd7');
 
   // circle dimension is 120px H and 120px W
   outerD = 120;
@@ -399,22 +391,31 @@ function loadWidget(preview = 0) {
     // Only load first 4 of the hourglass list
     if (i >= 4)
       break;
-    log(data[i]);
+
+    // Get top left corner coordiate of circle box
     quad_X = point[i].x - outerD/2;
     quad_Y = point[i].y - outerD/2;
-    // Outer circle quadrant 1
+    // Background circle
     circle = new Rect(quad_X,quad_Y,outerD,outerD);
     canvas.setStrokeColor(bgCircleColor);
     canvas.setLineWidth(canvWidth);
     canvas.strokeEllipse(circle);
-    // Inner progress circle quadrant 1
-    canvas.setFillColor(fbCircleColor);
     // get daysAgo
     let daysAgo = getDaysAgo(data[i].date);
     // find percentage of daysAgo/expire
     let percentage = Math.ceil(daysAgo*100/data[i].expire);
     // Convert percentage into degree
     let degree = percentage*360/100;
+
+    // Foreground progress circle
+    // Display color of progress circle based on percentage of hourglass
+    if (percentage >= 90)
+      canvas.setFillColor(fgCircleColor_high);
+    else if (percentage >= 70)
+      canvas.setFillColor(fgCircleColor_medium);
+    else
+      canvas.setFillColor(fgCircleColor_low);
+
     for (t = 0; t < degree; t++) {
       prog_x = point[i].x + (60) * sinDeg(t) - canvWidth / 2;
       prog_y = point[i].y - (60) * cosDeg(t) - canvWidth / 2;
@@ -451,7 +452,7 @@ function loadWidget(preview = 0) {
     canvas.drawImageInRect(image,img_r);
     // progress caption
     let txtColor = new Color('fff');
-    const txtRect = new Rect(quad_X,quad_Y+105,120,120);
+    const txtRect = new Rect(quad_X,quad_Y+108,120,120);
     canvas.setTextColor(txtColor);
     canvas.setFont(Font.boldSystemFont(18));
     canvas.setTextAlignedCenter();
